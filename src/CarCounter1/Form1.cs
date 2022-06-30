@@ -1,6 +1,10 @@
+using CarCounter.Models;
+using CarCounter.Tools;
+using CarCounter1.Data;
 using CarCounter1.Helpers;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using System.Data;
 
 namespace CarCounter1
 {
@@ -10,7 +14,7 @@ namespace CarCounter1
         Point StartLocation;
         bool IsSelect = false;
         Rectangle SelectionArea = new Rectangle(0, 0, 0, 0);
-
+        DataCounterService dataCounterService;
         bool IsCapturing = false;
         string SelectedFile;
         CancellationTokenSource source;
@@ -19,6 +23,7 @@ namespace CarCounter1
         public Form1()
         {
             InitializeComponent();
+            dataCounterService = ObjectContainer.Get<DataCounterService>();
             yolo = new Yolo();
             BtnStart.Click += async (a, b) =>
             {
@@ -34,6 +39,11 @@ namespace CarCounter1
             BtnSave.Click += (a, b) =>
             {
                 yolo.SaveLog();
+            };
+            
+            BtnSync.Click += async (a, b) =>
+            {
+                await SyncToCloud();
             };
 
             this.FormClosing += Form1_FormClosing;
@@ -101,7 +111,33 @@ namespace CarCounter1
 
         }
 
+        async Task SyncToCloud()
+        {
+            try
+            {
+                var table = yolo.GetLogData();
+                if (table != null)
+                {
+                    foreach (DataRow dr in table.Rows)
+                    {
+                        var newItem = new DataCounter();
+                        newItem.Jenis = dr["Jenis"].ToString();
+                        newItem.Tanggal = Convert.ToDateTime(dr["Waktu"]);
+                        newItem.Merek = "-";
+                        newItem.Gateway = AppConstants.Gateway;
+                        newItem.Lokasi = AppConstants.Lokasi;
+                        var res = await dataCounterService.InsertData(newItem);
+                    }
+                }
+                Console.WriteLine("Sync succeed");
+            }
+            catch (Exception ex)
+            {
 
+                Console.WriteLine($"Sync failed:{ex.ToString()}");
+            }
+            
+        }
 
         public string? OpenFileDialogForm()
         {
@@ -134,6 +170,11 @@ namespace CarCounter1
         {
             if (source != null)
                 source.Cancel();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
         }
 
         void Capture(CancellationToken token)

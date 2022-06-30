@@ -1,6 +1,7 @@
 ﻿using Microsoft.ML;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,6 +53,11 @@ namespace CarCounter1.Helpers
             var bmp = DrawResults.Draw(results, image,tracker);
             return bmp;
 
+        }
+
+        public DataTable GetLogData()
+        {
+            return tracker.GetLogTable();
         }
 
         public void SaveLog()

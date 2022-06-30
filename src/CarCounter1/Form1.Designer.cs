@@ -33,6 +33,7 @@
             this.BtnStop = new System.Windows.Forms.Button();
             this.BtnOpen = new System.Windows.Forms.Button();
             this.BtnSave = new System.Windows.Forms.Button();
+            this.BtnSync = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -81,11 +82,22 @@
             this.BtnSave.Text = "S&ave Log";
             this.BtnSave.UseVisualStyleBackColor = true;
             // 
+            // BtnSync
+            // 
+            this.BtnSync.Location = new System.Drawing.Point(336, 12);
+            this.BtnSync.Name = "BtnSync";
+            this.BtnSync.Size = new System.Drawing.Size(99, 23);
+            this.BtnSync.TabIndex = 6;
+            this.BtnSync.Text = "Sync to &Cloud";
+            this.BtnSync.UseVisualStyleBackColor = true;
+            this.BtnSync.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.BtnSync);
             this.Controls.Add(this.BtnSave);
             this.Controls.Add(this.BtnOpen);
             this.Controls.Add(this.BtnStop);
@@ -105,5 +117,6 @@
         private Button BtnStop;
         private Button BtnOpen;
         private Button BtnSave;
+        private Button BtnSync;
     }
 }

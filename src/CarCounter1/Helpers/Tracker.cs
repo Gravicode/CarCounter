@@ -50,6 +50,10 @@ namespace CarCounter1.Helpers
             table.AcceptChanges();
         }
 
+        public DataTable GetLogTable()
+        {
+            return table;
+        }
         public void SaveToLog()
         {
             
