@@ -55,6 +55,9 @@ AppConstants.SQLConn = Configuration["ConnectionStrings:SqlConn"];
 AppConstants.RedisCon = Configuration["RedisCon"];
 AppConstants.BlobConn = Configuration["ConnectionStrings:BlobConn"];
 AppConstants.GMapApiKey = Configuration["GmapKey"];
+
+AppConstants.LaporanStatistikUrl = Configuration["Reports:LaporanStatistikUrl"];
+
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredToast();
 

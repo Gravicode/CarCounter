@@ -31,7 +31,7 @@ namespace CarCounter.Web.Data
         //public static string? RekeningUB { get; set; }
         //public static string? CheckQRUrl { get; set; }
         public static string? DefaultPass { get; set; } = "123qweasd";
-        public static string? LaporanUbUrl { get; set; }
+        public static string? LaporanStatistikUrl { get; set; }
 
        
         
