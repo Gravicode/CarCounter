@@ -1,0 +1,167 @@
+﻿@page "/master/CCTV"
+
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavMgr
+@inject IToastService toastService
+@inject UserProfileService Userservice
+@inject CCTVService service
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+
+@using System.IO
+<h1>Daftar CCTV</h1>
+
+<p>Gunakan halaman ini untuk melihat info CCTV.</p>
+
+@if (DataCCTV == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <body onbeforeunload="TestDataTablesRemove('#gridData')">
+        <div class="table-responsive">
+            <table id="gridData" name="gridData" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Tanggal Pasang</th>
+                        <th>Nama</th>
+                        <th>Lokasi</th>
+                        <th>Merek</th>
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    @foreach (var item in DataCCTV)
+                    {
+                        <tr>
+                           
+                             <td>@item.TanggalPasang?.ToString("dd/MMM/yyyy HH:mm")</td>
+                            <td>@item.Nama</td>
+                            <td>@item.Lokasi</td>
+                            <td>@item.Merek</td>
+                            <td>
+                                @if (HasLogin)
+                                {
+                                    <input type="button" class="btn btn-primary btn-sm mt-1" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
+                                    <input type="button" class="btn btn-danger btn-sm mt-1" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                                }
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </body>
+}
+@if (HasLogin)
+{
+    <div>
+        <input type="button" data-toggle="modal" data-target="#taskModal" class="btn btn-primary" value="Masukan CCTV Baru" @onclick="(() => InitializeitemObject())" />
+    </div>
+}
+<ConfirmDialog OnClick="@Delete" />
+<CCTVDetail @ref="detail" TaskObject=@itemObject DataChanged="@DataChanged">
+    <CustomHeader>@customHeader</CustomHeader>
+</CCTVDetail>
+
+@code {
+    bool HasLogin = false;
+    CCTVDetail detail;
+    
+    string customHeader = string.Empty;
+    List<CCTV> DataCCTV;
+    CCTV itemObject = new CCTV();
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+
+    async Task DownloadFile(string Url)
+    {
+        if (!string.IsNullOrEmpty(Url))
+        {
+            NavMgr.NavigateTo(Url, true);
+        }
+        else
+        {
+            toastService.ShowError("Url kosong atau tidak valid.");
+        }
+
+    }
+
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            HasLogin = await Userservice.GetUserRole(UserName)==Roles.Admin;
+        }
+    
+       
+
+        DataCCTV = await service.GetAllData();
+
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (DataCCTV != null && DataCCTV.Count > 0)
+        {
+
+            await jsRuntime.InvokeAsync<object>("TestDataTablesAdd", "#gridData");
+        }
+        if (firstRender)
+        {
+            
+        }
+    }
+
+    private void InitializeitemObject()
+    {
+
+        itemObject = new CCTV();
+      
+
+        //detail.DocumentUrl = "";
+
+        //itemObject.Id = -1;
+
+        customHeader = "Masukan CCTV Baru";
+    }
+    private async void DataChanged()
+    {
+        DataCCTV = await service.GetAllData();
+        StateHasChanged();
+    }
+
+    private void PrepareForEdit(CCTV item)
+    {
+        customHeader = "Ubah Data CCTV";
+        itemObject = item;
+        //detail.DocumentUrl = item.DocumentUrl;
+    }
+    private void PrepareForDelete(CCTV item)
+    {
+        itemObject = item;
+    }
+    private async Task Delete()
+    {
+        var task = await service.DeleteData(itemObject.Id);
+        await jsRuntime.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        DataCCTV = await service.GetAllData();
+        itemObject = new CCTV() { Id = -1 };
+    }
+
+    private async System.Threading.Tasks.Task applyPager(string TableName)
+    {
+        await jsRuntime.InvokeAsync<object>("applyPager", TableName);
+    }
+
+}

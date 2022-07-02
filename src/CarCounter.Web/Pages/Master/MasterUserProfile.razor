@@ -6,9 +6,9 @@
 @inject IToastService toastService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @using System.IO
-<h1>Data Anggota UB</h1>
+<h1>Data User</h1>
 
-<p>Gunakan halaman ini untuk mengatur data anggota UB.</p>
+<p>Gunakan halaman ini untuk mengatur data user.</p>
 
 @if (HasLogin)
 {
@@ -100,7 +100,7 @@ else
 @if (HasLogin)
 {
     <div>
-        <input type="button" data-toggle="modal" data-target="#taskModal" class="btn btn-primary" value="Tambah Anggota" @onclick="(() => InitializeitemObject())" />
+        <input type="button" data-toggle="modal" data-target="#taskModal" class="btn btn-primary" value="Tambah User" @onclick="(() => InitializeitemObject())" />
     </div>
 }
 
@@ -215,7 +215,7 @@ else
 
 
 
-        customHeader = "Tambah Anggota";
+        customHeader = "Tambah User";
     }
     private async void DataChanged()
     {
@@ -225,7 +225,7 @@ else
 
     private void PrepareForEdit(UserProfile item)
     {
-        customHeader = "Ubah Data Anggota";
+        customHeader = "Ubah Data User";
         itemObject = item;
         //detail.DocumentUrl = item.DocumentUrl;
     }

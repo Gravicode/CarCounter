@@ -22,7 +22,9 @@ namespace CarCounter.Data
         public DbSet<CCTV> CCTVs { get; set; }
         public DbSet<Gateway> Gateways { get; set; }
         public DbSet<DataCounter> DataCounters { get; set; }
-      
+        public DbSet<UserProfile> UserProfiles { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             /*

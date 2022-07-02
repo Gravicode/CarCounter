@@ -140,6 +140,9 @@ void Configure(WebApplication app, IWebHostEnvironment env)
         endpoints.MapGrpcService<GrpcGatewayService>().EnableGrpcWeb().RequireCors("AllowAll");
         endpoints.MapGrpcService<GrpcCCTVService>().EnableGrpcWeb().RequireCors("AllowAll");
         endpoints.MapGrpcService<GrpcDataCounterService>().EnableGrpcWeb().RequireCors("AllowAll");
+        endpoints.MapGrpcService<GrpcUserProfileService>().EnableGrpcWeb().RequireCors("AllowAll");
+        endpoints.MapGrpcService<GrpcAuthService>().EnableGrpcWeb().RequireCors("AllowAll");
+      
        
 
 

@@ -14,7 +14,7 @@ namespace CarCounter.Data
         public const string FACE_ENDPOINT = "https://southeastasia.api.cognitive.microsoft.com/";
 
 
-        public static string BEARER_TOKEN_EDESK = "";
+        public static string ApiKey = "123qweasd";
         
         public static string SQLConn = "";
         public const string GemLic = "EDWG-SKFA-D7J1-LDQ5";
