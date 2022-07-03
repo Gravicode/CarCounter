@@ -5,6 +5,10 @@ using CarCounter.Services.Grpc;
 using ProtoBuf.Grpc.Server;
 using System.Text;
 using CarCounter.Services.Helpers;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+using CarCounter.Services.Extension;
+using CarCounter.Services.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +16,23 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// logger with serilog
+var logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
+
+// implement DI
+builder.Services.InjectDbWorkspace();
+
+// db first
+//builder.Services.AddDbContext<CarCounterDB>(option =>
+//    option.UseMySql(builder.Configuration.GetConnectionString("SqlConn"), 
+//    ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("SqlConn")))
+//);
 
 ConfigureServices(builder.Services, builder.Configuration);
 // Configure Kestrel to listen on a specific HTTP port 
@@ -29,6 +50,19 @@ var app = builder.Build();
 Configure(app, app.Environment);
 ConfigureRouting(app);
 
+// global error handler
+app.CustomErrorHandler();
+
+// start logging
+try
+{
+    logger.Information("Starting CarContainer.Service API");
+}
+catch (Exception ex)
+{
+    logger.Fatal(ex, "Fatal error when starting CarContainer.Service API");
+}
+
 app.Run();
 
 void ConfigureServices(IServiceCollection services, IConfiguration Configuration)
@@ -40,15 +74,9 @@ void ConfigureServices(IServiceCollection services, IConfiguration Configuration
     //        builder => builder.AllowAnyOrigin().AllowAnyHeader().WithMethods("GET, PATCH, DELETE, PUT, POST, OPTIONS"));
     //});
 
-    services.AddSingleton<GatewayService>();
-    services.AddSingleton<CCTVService>();
-    services.AddSingleton<DataCounterService>();
-    services.AddTransient<AzureBlobHelper>();
     AppConstants.SQLConn = Configuration["ConnectionStrings:SqlConn"];
     AppConstants.RedisCon = Configuration["RedisCon"];
     AppConstants.BlobConn = Configuration["BlobConn"];
-    
-
 
     MailService.MailUser = Configuration["MailSettings:MailUser"];
     MailService.MailPassword = Configuration["MailSettings:MailPassword"];
@@ -79,7 +107,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration Configuration
 
     CarCounterDB db = new CarCounterDB();
     db.Database.EnsureCreated();
-   
 
     //GRPC
     services.AddCodeFirstGrpc(options =>
@@ -99,10 +126,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration Configuration
                .AllowAnyHeader()
                .WithExposedHeaders("Grpc-Status", "Grpc-Message", "Grpc-Encoding", "Grpc-Accept-Encoding");
     }));
-
-
-
-
 }
 void Configure(WebApplication app, IWebHostEnvironment env)
 {
@@ -114,10 +137,10 @@ void Configure(WebApplication app, IWebHostEnvironment env)
     //.AllowCredentials());               // allow credentials 
     // Configure the HTTP request pipeline.
     //if (env.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
+    //{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    //}
 
     app.UseHttpsRedirection();
     app.UseStaticFiles();
@@ -142,47 +165,21 @@ void Configure(WebApplication app, IWebHostEnvironment env)
         endpoints.MapGrpcService<GrpcDataCounterService>().EnableGrpcWeb().RequireCors("AllowAll");
         endpoints.MapGrpcService<GrpcUserProfileService>().EnableGrpcWeb().RequireCors("AllowAll");
         endpoints.MapGrpcService<GrpcAuthService>().EnableGrpcWeb().RequireCors("AllowAll");
-      
-       
 
 
+        //    endpoints.MapGrpcHealthChecksService().EnableGrpcWeb().RequireCors("AllowAll");
+
+        //    endpoints.MapGet("/", async context =>
+        //    {
+        //        await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+        //    });
+        //});
 
 
-        endpoints.MapGrpcHealthChecksService().EnableGrpcWeb().RequireCors("AllowAll");
-
-        endpoints.MapGet("/", async context =>
-        {
-            await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
-        });
     });
-
-
-}
 
 void ConfigureRouting(WebApplication app)
 {
-
-    var summaries = new[]
-    {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-    app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-            new WeatherForecast
-            (
-                DateTime.Now.AddDays(index),
-                Random.Shared.Next(-20, 55),
-                summaries[Random.Shared.Next(summaries.Length)]
-            ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
-
-}
-internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    app.WeatherForecastApiMapping();
+    app.GatewayApiMapping();
 }

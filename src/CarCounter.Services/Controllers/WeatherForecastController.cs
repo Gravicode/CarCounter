@@ -2,32 +2,33 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CarCounter.Services.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public static partial class RoutingExtensions
     {
-        private static readonly string[] Summaries = new[]
+        public static void WeatherForecastApiMapping(this WebApplication app)
         {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+            var summaries = new[]
+    {
+    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+};
 
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
-        {
-            _logger = logger;
+            app.MapGet("/weatherforecast", () =>
+            {
+                var forecast = Enumerable.Range(1, 5).Select(index =>
+                    new WeatherForecast
+                    (
+                        DateTime.Now.AddDays(index),
+                        Random.Shared.Next(-20, 55),
+                        summaries[Random.Shared.Next(summaries.Length)]
+                    ))
+                    .ToArray();
+                return forecast;
+            })
+            .WithName("GetWeatherForecast");
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+            public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
         }
     }
 }

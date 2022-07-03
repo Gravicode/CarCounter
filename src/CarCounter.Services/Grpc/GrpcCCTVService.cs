@@ -1,73 +1,85 @@
 ﻿using CarCounter.Data;
 using CarCounter.Models;
+using CarCounter.Services.IServices;
 using ProtoBuf.Grpc;
 
 namespace CarCounter.Services.Grpc
 {
-    public class GrpcCCTVService : ICCTV
+    public class GrpcCCTVService : ICCTV, ICrudGrpc<CCTV>
     {
-        CCTVService svc;
-        public GrpcCCTVService()
+        private readonly ILogger<GrpcCCTVService> _logger;
+        private readonly IWorkspace _workspace;
+
+        public GrpcCCTVService(ILogger<GrpcCCTVService> logger, IWorkspace workspace)
         {
-            svc = new CCTVService();
+            _logger = logger;
+            _workspace = workspace;
         }
 
-
-        public Task<List<CCTV>> FindByKeyword(string Keyword, CallContext context = default)
+        public async Task<List<CCTV>?> FindByKeyword(string Keyword, CallContext context = default)
         {
-            var res = svc.FindByKeyword(Keyword);
-            return Task.FromResult(res);
+            _logger.LogInformation($"Commencing {nameof(FindByKeyword)}");
+            var res = await _workspace.Cctvs.GetAll(x => x.Nama.ToLower().Trim()
+                .Contains(Keyword.ToLower().Trim()));
+            _logger.LogInformation($"Executing {nameof(FindByKeyword)} succeed");
+            return (List<CCTV>?)res;
         }
 
-        public Task<List<CCTV>> GetAllData(CallContext context = default)
+        public async Task<List<CCTV>?> GetAllData(CallContext context = default)
         {
-            try
-            {
-                var res = svc.GetAllData();
-                return Task.FromResult(res);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                return Task.FromResult(default(List<CCTV>));
-            }
+            _logger.LogInformation($"Commencing {nameof(GetAllData)}");
+            var res = await _workspace.Cctvs.GetAll();
+            _logger.LogInformation($"Executing {nameof(GetAllData)} succeed");
+
+            return (List<CCTV>?)res;
         }
 
-        public Task<CCTV> GetDataById(InputCls Id, CallContext context = default)
+        public async Task<CCTV?> GetDataById(InputCls Id, CallContext context = default)
         {
-            var res = svc.GetDataById(long.Parse(Id.Param[0]));
-            return Task.FromResult(res);
+            _logger.LogInformation($"Commencing {nameof(GetDataById)}");
+            var res = await _workspace.Cctvs.Get(x => x.Id == long.Parse(Id.Param[0]));
+            _logger.LogInformation($"Executing {nameof(GetDataById)} succeed");
+
+            return res;
         }
 
-        public Task<OutputCls> GetLastId(CallContext context = default)
+        public async Task<OutputCls> GetLastId(CallContext context = default)
         {
+            _logger.LogInformation($"Commencing {nameof(GetLastId)}");
+            var res = await _workspace.Cctvs.GetMax(x => x.Id);
+            _logger.LogInformation($"Executing {nameof(GetLastId)} succeed");
 
-            var res = svc.GetLastId();
-            return Task.FromResult(new OutputCls() { Data = res.ToString() });
+            return new OutputCls() { Data = res.ToString() };
         }
 
-
-
-        Task<OutputCls> ICrudGrpc<CCTV>.DeleteData(InputCls Id, CallContext context)
+        public async Task<OutputCls> DeleteData(InputCls Id, CallContext context)
         {
-            var res = svc.DeleteData(long.Parse(Id.Param[0]));
-            return Task.FromResult(new OutputCls() { Result = res });
+            _logger.LogInformation($"Commencing {nameof(DeleteData)}");
+            await _workspace.Cctvs.Delete(long.Parse(Id.Param[0]));
+            await _workspace.Save();
+            _logger.LogInformation($"Executing {nameof(DeleteData)} succeed");
+
+            return new OutputCls() { Result = true };
         }
 
-
-
-        Task<OutputCls> ICrudGrpc<CCTV>.InsertData(CCTV data, CallContext context)
+        public async Task<OutputCls> InsertData(CCTV data, CallContext context)
         {
-            var res = svc.InsertData(data);
-            return Task.FromResult(new OutputCls() { Result = res });
+            _logger.LogInformation($"Commencing {nameof(InsertData)}");
+            await _workspace.Cctvs.Create(data);
+            await _workspace.Save();
+            _logger.LogInformation($"Executing {nameof(InsertData)} succeed");
+
+            return new OutputCls() { Result = true };
         }
 
-
-        Task<OutputCls> ICrudGrpc<CCTV>.UpdateData(CCTV data, CallContext context)
+        public async Task<OutputCls> UpdateData(CCTV data, CallContext context)
         {
-            var res = svc.UpdateData(data);
-            return Task.FromResult(new OutputCls() { Result = res });
-        }
+            _logger.LogInformation($"Commencing {nameof(UpdateData)}");
+            await _workspace.Cctvs.Update(data);
+            await _workspace.Save();
+            _logger.LogInformation($"Executing {nameof(UpdateData)} succeed");
 
+            return new OutputCls() { Result = true };
+        }
     }
 }
