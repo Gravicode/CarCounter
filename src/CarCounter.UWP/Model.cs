@@ -133,15 +133,7 @@ namespace CarCounter.UWP
 
         internal async Task<List<DetectionResult>> EvaluateFrame(VideoFrame frame)
         {
-            /*
-              binding.Bind("input_1:0", input.input_100);
-            var result = await session.EvaluateAsync(binding, "0");
-            var output = new yolov4Output();
-            output.Identity00 = result.Outputs["Identity:0"] as TensorFloat;
-            output.Identity_100 = result.Outputs["Identity_1:0"] as TensorFloat;
-            output.Identity_200 = result.Outputs["Identity_2:0"] as TensorFloat;
-            return output;
-             */
+            
             _binding.Clear();
             var tensor = ImageFeatureValue.CreateFromVideoFrame(frame);
             
