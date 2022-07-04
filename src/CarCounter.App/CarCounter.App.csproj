@@ -16,7 +16,7 @@
 		<ApplicationTitle>CarCounter.App</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.carcounter.app</ApplicationId>
+		<ApplicationId>com.gravicode.carcounter.app</ApplicationId>
 		<ApplicationIdGuid>9967BB31-0CB1-42EB-B800-4979D02EF099</ApplicationIdGuid>
 
 		<!-- Versions -->

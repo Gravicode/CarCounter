@@ -22,7 +22,7 @@ namespace CarCounter.Web.Helpers
                 CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
 
                 //create a container CloudBlobContainer 
-                var cloudBlobContainer = cloudBlobClient.GetContainerReference("portal-ub");
+                var cloudBlobContainer = cloudBlobClient.GetContainerReference("car-counter");
 
                 //create a container if it is not already exists
 

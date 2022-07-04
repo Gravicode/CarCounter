@@ -27,7 +27,7 @@ namespace CarCounter.App.Data
             {
                 string storageConnection = AppConstants.BlobConn;
 
-                string containerName = "ngaji-online";
+                string containerName = "car-counter";
 
                 client = new BlobServiceClient(storageConnection);
 
