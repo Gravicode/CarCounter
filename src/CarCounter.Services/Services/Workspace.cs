@@ -9,15 +9,23 @@ namespace CarCounter.Services.Services
 
         private readonly DbContext _db;
 
+        public Workspace(DbContext db)
+        {
+            _db = db;
+        }
+
         private IGenericCrud<Gateway>? _gateways { get; }
         private IGenericCrud<CCTV>? _cctvs { get; }
         private IGenericCrud<DataCounter>? _dataCounters { get; }
+        private IGenericCrud<UserProfile>? _userProfiles { get; }
 
         public IGenericCrud<Gateway> Gateways => _gateways ?? new GenericCrud<Gateway>(_db);
 
-        public IGenericCrud<CCTV> Cctvs => throw new NotImplementedException();
+        public IGenericCrud<CCTV> Cctvs => _cctvs ?? new GenericCrud<CCTV>(_db);
 
-        public IGenericCrud<DataCounter> DataCounters => throw new NotImplementedException();
+        public IGenericCrud<DataCounter> DataCounters => _dataCounters ?? new GenericCrud<DataCounter>(_db);
+
+        public IGenericCrud<UserProfile> UserProfiles => _userProfiles ??  new GenericCrud<UserProfile>(_db);
 
         public void Dispose()
         {
@@ -25,7 +33,7 @@ namespace CarCounter.Services.Services
             GC.SuppressFinalize(this);
         }
 
-        public Task<bool> Save()
+        public async Task<bool> Save()
         {
             try
             {

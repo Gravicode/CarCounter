@@ -1,4 +1,4 @@
-﻿using CarCounter.Models.Custom.DTO;
+﻿using CarCounter.Models;
 using CarCounter.Services.IServices;
 
 namespace CarCounter.Services.Controllers
@@ -14,8 +14,8 @@ namespace CarCounter.Services.Controllers
                 app.Logger.LogInformation("Get gateway succeed");
                 return gateways;
             })
-            .WithName("GetGateways")
-            .Produces(StatusCodes.Status200OK);
+                .WithName("GetGateways")
+                .Produces(StatusCodes.Status200OK);
 
             app.MapGet("/gateway/get/{id}", async (IWorkspace service,
                 long id) =>
@@ -26,17 +26,46 @@ namespace CarCounter.Services.Controllers
 
                 return gateway;
             })
-            .WithName("GetGateway")
-            .Produces(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+                .WithName("GetGateway")
+                .Produces(StatusCodes.Status200OK)
+                .ProducesProblem(StatusCodes.Status404NotFound);
 
             app.MapPost("/gateway/add", async (IWorkspace service,
-                CreateGatewayDTO data) =>
+                Gateway data) =>
             {
-                return Results.Ok("test");
+                app.Logger.LogInformation("Commencing add gateway");
+                await service.Gateways.Create(data);
+                var res = await service.Save();
+                app.Logger.LogInformation("Add gateway succeed");
+                return data;
             })
                 .WithName("AddGateway")
                 .Produces(StatusCodes.Status201Created)
+                .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+            app.MapDelete("/gaeteway/delete/{id}", async (IWorkspace service,
+                long id) =>
+            {
+                app.Logger.LogInformation("Commencing delete gateway");
+                await service.Gateways.Delete(id);
+                var res = await service.Save();
+                app.Logger.LogInformation("Delete gateway succeed");
+                return res;
+            })
+                .WithName("DeleteGateway")
+                .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+            app.MapPut("/gateway/update", async (IWorkspace service,
+                Gateway data) =>
+            {
+                app.Logger.LogInformation("Commencing update gateway");
+                await service.Gateways.Update(data);
+                var res = await service.Save();
+                app.Logger.LogInformation("Delete update succeed");
+            })
+                .WithName("UpdateGateway")
+                .Produces(StatusCodes.Status204NoContent)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
         }
     }
