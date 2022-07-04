@@ -3,12 +3,12 @@ using CarCounter.Tools;
 using CarCounter1.Data;
 using CarCounter1.Helpers;
 using Emgu.CV;
-using Emgu.CV.Structure;
+using Emgu.CV.CvEnum;
 using System.Data;
 
 namespace CarCounter1
 {
-    public partial class Form1 : Form
+    public partial class Canvas : Form
     {
         int ImgHeight = 0, ImgWidth = 0;
         Point StartLocation;
@@ -20,27 +20,30 @@ namespace CarCounter1
         CancellationTokenSource source;
         Yolo yolo;
         int DelayTime = 20;
-        public Form1()
+        public Canvas()
         {
             InitializeComponent();
             dataCounterService = ObjectContainer.Get<DataCounterService>();
             yolo = new Yolo();
+
             BtnStart.Click += async (a, b) =>
             {
                 if (source == null) source = new CancellationTokenSource();
                 var task = new Thread(() => Capture(source.Token));
                 task.Start();
             };
+
             BtnStop.Click += (a, b) =>
             {
                 if (source == null) return;
                 source.Cancel();
             };
+
             BtnSave.Click += (a, b) =>
             {
                 yolo.SaveLog();
-            };
-            
+            };           
+
             BtnSync.Click += async (a, b) =>
             {
                 await SyncToCloud();
@@ -171,29 +174,27 @@ namespace CarCounter1
             if (source != null)
                 source.Cancel();
         }
+        
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        void Capture(CancellationToken token)
+        async void Capture(CancellationToken token)
         {
             Rectangle selectRect = new Rectangle();
             if (IsCapturing) return;
-            var capture = !string.IsNullOrEmpty(SelectedFile) ? new Emgu.CV.VideoCapture(SelectedFile) : new Emgu.CV.VideoCapture();
+            var capture = !string.IsNullOrEmpty(AppConstants.Cctv1) ? new Emgu.CV.VideoCapture(AppConstants.Cctv1) : new Emgu.CV.VideoCapture();
             IsCapturing = true;
             while (true)
             {
                 using (var nextFrame = capture.QueryFrame())
-                {
-                    
+                {                   
 
                     if (nextFrame != null)
                     {
                         var img = nextFrame.ToBitmap();
                         if (img != null)
                         {
+                            // enable resize
+                            //Mat resize = new Mat();
+                            //CvInvoke.Resize(nextFrame, resize, new Size(480, 480), 0, 0, Inter.Linear);
 
                             if (SelectionArea.Width > 0 && SelectionArea.Height > 0)
                             {
@@ -206,15 +207,15 @@ namespace CarCounter1
                                 selectRect = new Rectangle((int)(ratioX * nextFrame.Width), (int)(ratioY * nextFrame.Height), (int)(ratioWidth * nextFrame.Width), (int)(ratioHeight * nextFrame.Height));
 
                             }
-                           
-                            var bmp = yolo.Detect(img, selectRect);
+
+                            var bmp = await yolo.Detect(img, selectRect);
+                            //var bmp = await yolo.Detect(resize.ToBitmap(), selectRect);
+
                             this.pictureBox1?.Invoke((MethodInvoker)delegate
                             {
                                 // Running on the UI thread
                                 pictureBox1.Image = bmp;
                             });
-
-
 
                         }
 
@@ -222,11 +223,10 @@ namespace CarCounter1
 
                     if (token.IsCancellationRequested)
                     {
-
                         break;
                     }
                 }
-                Thread.Sleep(DelayTime);
+                //Thread.Sleep(DelayTime);
             }
             IsCapturing = false;
         }

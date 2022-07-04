@@ -27,6 +27,8 @@ namespace CarCounter1.Helpers
         public const string GemLic = "EDWG-SKFA-D7J1-LDQ5";
        
         public static string RedisCon { set; get; }
+
+        public static string Cctv1 { set; get; }
       
     }
 }

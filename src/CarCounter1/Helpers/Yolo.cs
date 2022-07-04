@@ -33,7 +33,7 @@ namespace CarCounter1.Helpers
         public Yolo()
         {
             //Directory.CreateDirectory(_imageOutputFolder);
-             trainer = new Trainer();
+            trainer = new Trainer();
 
             Console.WriteLine("Build and train YOLO V4 model...");
             trainedModel = trainer.BuildAndTrain(_modelPath);
@@ -43,7 +43,7 @@ namespace CarCounter1.Helpers
 
             tracker = new Helpers.Tracker();
         }
-        public Bitmap Detect(Bitmap image,Rectangle selectRect)
+        public async Task<Bitmap> Detect(Bitmap image,Rectangle selectRect)
         {
             Console.WriteLine("Run predictions on images...");
 
@@ -66,7 +66,6 @@ namespace CarCounter1.Helpers
         }
         public void Dispose()
         {
-          
         }
     }
 

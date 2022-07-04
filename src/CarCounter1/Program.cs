@@ -20,7 +20,7 @@ namespace CarCounter1
             ApplicationConfiguration.Initialize();
             ReadConfig();
             Setup();
-            Application.Run(new Form1());
+            Application.Run(new Canvas());
         }
 
         static void Setup()
@@ -64,6 +64,8 @@ namespace CarCounter1
                 AppConstants.GrpcUrl = Configuration["App:GrpcUrl"];
                 AppConstants.Gateway = Configuration["App:Gateway"];
                 AppConstants.Lokasi = Configuration["App:Lokasi"];
+
+                AppConstants.Cctv1 = Configuration["CameraUrls:CCTV1"];
 
             }
             catch (Exception ex)
