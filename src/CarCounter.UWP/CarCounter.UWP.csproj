@@ -120,12 +120,22 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppConfig.cs" />
-    <Compile Include="car.cs" />
-    <Compile Include="Helpers\AppConstants.cs" />
+    <Compile Include="Common\HighResolutionClock.cs" />
+    <Compile Include="Common\ImageHelper.cs" />
+    <Compile Include="Common\Prediction.cs" />
+    <Compile Include="Common\TensorizationModels.cs" />
+    <Compile Include="Common\Thumbnail.cs" />
+    <Compile Include="Controls\DeviceComboBox.xaml.cs">
+      <DependentUpon>DeviceComboBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PerformanceMonitor.xaml.cs">
+      <DependentUpon>PerformanceMonitor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="yolov4.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -134,6 +144,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\sauron_eye.jpg" />
+    <Content Include="InputData\fish.png" />
+    <Content Include="InputData\hummingbird.jpg" />
+    <Content Include="InputData\ilsvrc2013.txt" />
+    <Content Include="InputData\kitten.png" />
+    <Content Include="InputData\sysnet.txt" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -148,12 +163,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Controls\DeviceComboBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\PerformanceMonitor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.AI.MachineLearning">
+      <Version>1.11.0</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json">
       <Version>6.0.0</Version>
     </PackageReference>
@@ -165,13 +191,11 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\car.onnx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Folder Include="Helpers\" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="appsettings.json" />
+    <Content Include="Assets\yolov4.onnx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
