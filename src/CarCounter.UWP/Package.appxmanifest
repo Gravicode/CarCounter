@@ -49,5 +49,6 @@
     <Capability Name="privateNetworkClientServer"/>
     <uap:Capability Name="videosLibrary"/>
     <DeviceCapability Name="webcam"/>
+    <DeviceCapability Name="microphone"/>
   </Capabilities>
 </Package>

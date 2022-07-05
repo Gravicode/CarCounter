@@ -1,4 +1,3 @@
-using Microsoft.AI.MachineLearning;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,12 +7,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-//using Windows.AI.MachineLearning;
+using Windows.AI.MachineLearning;
 using Windows.Media;
 using Windows.Storage;
 using Windows.UI.Xaml;
 
-namespace CarCounter.UWP
+namespace CarCounter.UWP.Helpers
 {
     public class Model
     {
@@ -123,7 +122,7 @@ namespace CarCounter.UWP
 
         internal async Task InitModelAsync(LearningModelDeviceKind engine = LearningModelDeviceKind.Cpu)
         {
-            var model_file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets//yolov4.onnx"));
+            var model_file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets//Yolo.onnx"));
             _model = await LearningModel.LoadFromStorageFileAsync(model_file);
             var device = new LearningModelDevice(engine);
             _session = new LearningModelSession(_model, device);
