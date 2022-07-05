@@ -23,7 +23,7 @@ namespace CarCounter1
         string SelectedFile;
         CancellationTokenSource source;
 
-        Yolo yolo;
+        //Yolo yolo;
         DarknetYOLO model;
         DarknetYoloTracker tracker;
 
@@ -34,7 +34,7 @@ namespace CarCounter1
             InitializeComponent();
             dataCounterService = ObjectContainer.Get<DataCounterService>();
 
-            yolo = new Yolo();
+            //yolo = new Yolo();
             model = new DarknetYOLO(AppConstants.Label, AppConstants.Weights,
                 AppConstants.Cfg, PreferredBackend.Cuda, PreferredTarget.Cuda);
             model.NMSThreshold = 0.4f;
@@ -58,6 +58,7 @@ namespace CarCounter1
             BtnSave.Click += (a, b) =>
             {
                 //yolo.SaveLog();
+                tracker.SaveToLog();
             };           
 
             BtnSync.Click += async (a, b) =>
@@ -134,20 +135,20 @@ namespace CarCounter1
         {
             try
             {
-                //var table = yolo.GetLogData();
-                //if (table != null)
-                //{
-                //    foreach (DataRow dr in table.Rows)
-                //    {
-                //        var newItem = new DataCounter();
-                //        newItem.Jenis = dr["Jenis"].ToString();
-                //        newItem.Tanggal = Convert.ToDateTime(dr["Waktu"]);
-                //        newItem.Merek = "-";
-                //        newItem.Gateway = AppConstants.Gateway;
-                //        newItem.Lokasi = AppConstants.Lokasi;
-                //        var res = await dataCounterService.InsertData(newItem);
-                //    }
-                //}
+                var table = tracker.GetLogTable();
+                if (table != null)
+                {
+                    foreach (DataRow dr in table.Rows)
+                    {
+                        var newItem = new DataCounter();
+                        newItem.Jenis = dr["Jenis"].ToString();
+                        newItem.Tanggal = Convert.ToDateTime(dr["Waktu"]);
+                        newItem.Merek = "-";
+                        newItem.Gateway = AppConstants.Gateway;
+                        newItem.Lokasi = AppConstants.Lokasi;
+                        var res = await dataCounterService.InsertData(newItem);
+                    }
+                }
                 Console.WriteLine("Sync succeed");
             }
             catch (Exception ex)
