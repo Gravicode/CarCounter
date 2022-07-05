@@ -10,9 +10,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Emgu.CV" Version="4.5.5.4823" />
-		<PackageReference Include="Emgu.CV.Bitmap" Version="4.5.5.4823" />
-		<PackageReference Include="Emgu.CV.runtime.windows" Version="4.5.5.4823" />
 		<PackageReference Include="MetroFramework" Version="1.2.0.3" />
 		<PackageReference Include="Microsoft.ML" Version="1.7.1" />
 		<PackageReference Include="Microsoft.ML.ImageAnalytics" Version="1.7.1" />
@@ -35,6 +32,9 @@
 	<ItemGroup>
 		<ProjectReference Include="..\CarCounter.Models\CarCounter.Models.csproj" />
 		<ProjectReference Include="..\CarCounter.Tools\CarCounter.Tools.csproj" />
+		<ProjectReference Include="..\DarknetYolo\DarknetYolo.csproj" />
+		<ProjectReference Include="..\References\EmguCV\Emgu.CV.Platform\Emgu.CV.Bitmap\Emgu.CV.Bitmap.csproj" />
+		<ProjectReference Include="..\References\EmguCV\Emgu.CV.Platform\NetStandard\Emgu.CV.Platform.NetStandard.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -45,5 +45,11 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="NetworkModel\" />
+	</ItemGroup>
+
+	<Import Project="..\References\EmguCV\Emgu.CV.Runtime\Windows\Emgu.CV.Runtime.Windows.projitems" Label="Shared" />
 
 </Project>
