@@ -47,26 +47,16 @@ namespace CarCounter1
    .AddJsonFile("config.json", optional: false);
 
                 IConfiguration Configuration = builder.Build();
-
-                MailService.MailUser = Configuration["MailSettings:MailUser"];
-                MailService.MailPassword = Configuration["MailSettings:MailPassword"];
-                MailService.MailServer = Configuration["MailSettings:MailServer"];
-                MailService.MailPort = int.Parse(Configuration["MailSettings:MailPort"]);
-                MailService.SetTemplate(Configuration["MailSettings:TemplatePath"]);
-                MailService.SendGridKey = Configuration["MailSettings:SendGridKey"];
-                MailService.UseSendGrid = true;
-
-
-                SmsService.UserKey = Configuration["SmsSettings:ZenzivaUserKey"];
-                SmsService.PassKey = Configuration["SmsSettings:ZenzivaPassKey"];
-                SmsService.TokenKey = Configuration["SmsSettings:TokenKey"];
                 
                 AppConstants.GrpcUrl = Configuration["App:GrpcUrl"];
                 AppConstants.Gateway = Configuration["App:Gateway"];
                 AppConstants.Lokasi = Configuration["App:Lokasi"];
 
-                AppConstants.Cctv1 = Configuration["CameraUrls:CCTV1"];
+                AppConstants.Label = Configuration["NetworkModel:Label"];
+                AppConstants.Weights = Configuration["NetworkModel:Weights"];
+                AppConstants.Cfg = Configuration["NetworkModel:Cfg"];
 
+                AppConstants.Cctv1 = Configuration["CameraUrls:CCTV1"];
             }
             catch (Exception ex)
             {

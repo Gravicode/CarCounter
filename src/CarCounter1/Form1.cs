@@ -3,8 +3,12 @@ using CarCounter.Tools;
 using CarCounter1.Data;
 using CarCounter1.Helpers;
 using Emgu.CV;
-using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using System.Data;
+using DarknetYolo;
+using DarknetYolo.Models;
+using Tracker = CarCounter1.Helpers.Tracker;
+using System;
 
 namespace CarCounter1
 {
@@ -18,13 +22,25 @@ namespace CarCounter1
         bool IsCapturing = false;
         string SelectedFile;
         CancellationTokenSource source;
+
         Yolo yolo;
-        int DelayTime = 20;
+        DarknetYOLO model;
+        DarknetYoloTracker tracker;
+
+        int DelayTime = 1;
+
         public Canvas()
         {
             InitializeComponent();
             dataCounterService = ObjectContainer.Get<DataCounterService>();
+
             yolo = new Yolo();
+            model = new DarknetYOLO(AppConstants.Label, AppConstants.Weights,
+                AppConstants.Cfg, PreferredBackend.Cuda, PreferredTarget.Cuda);
+            model.NMSThreshold = 0.4f;
+            model.ConfidenceThreshold = 0.5f;
+
+            tracker = new Helpers.DarknetYoloTracker();
 
             BtnStart.Click += async (a, b) =>
             {
@@ -41,7 +57,7 @@ namespace CarCounter1
 
             BtnSave.Click += (a, b) =>
             {
-                yolo.SaveLog();
+                //yolo.SaveLog();
             };           
 
             BtnSync.Click += async (a, b) =>
@@ -118,20 +134,20 @@ namespace CarCounter1
         {
             try
             {
-                var table = yolo.GetLogData();
-                if (table != null)
-                {
-                    foreach (DataRow dr in table.Rows)
-                    {
-                        var newItem = new DataCounter();
-                        newItem.Jenis = dr["Jenis"].ToString();
-                        newItem.Tanggal = Convert.ToDateTime(dr["Waktu"]);
-                        newItem.Merek = "-";
-                        newItem.Gateway = AppConstants.Gateway;
-                        newItem.Lokasi = AppConstants.Lokasi;
-                        var res = await dataCounterService.InsertData(newItem);
-                    }
-                }
+                //var table = yolo.GetLogData();
+                //if (table != null)
+                //{
+                //    foreach (DataRow dr in table.Rows)
+                //    {
+                //        var newItem = new DataCounter();
+                //        newItem.Jenis = dr["Jenis"].ToString();
+                //        newItem.Tanggal = Convert.ToDateTime(dr["Waktu"]);
+                //        newItem.Merek = "-";
+                //        newItem.Gateway = AppConstants.Gateway;
+                //        newItem.Lokasi = AppConstants.Lokasi;
+                //        var res = await dataCounterService.InsertData(newItem);
+                //    }
+                //}
                 Console.WriteLine("Sync succeed");
             }
             catch (Exception ex)
@@ -180,7 +196,8 @@ namespace CarCounter1
         {
             Rectangle selectRect = new Rectangle();
             if (IsCapturing) return;
-            var capture = !string.IsNullOrEmpty(AppConstants.Cctv1) ? new Emgu.CV.VideoCapture(AppConstants.Cctv1) : new Emgu.CV.VideoCapture();
+            //var capture = !string.IsNullOrEmpty(AppConstants.Cctv1) ? new Emgu.CV.VideoCapture(AppConstants.Cctv1) : new Emgu.CV.VideoCapture();
+            var capture = !string.IsNullOrEmpty(SelectedFile) ? new Emgu.CV.VideoCapture(SelectedFile) : new Emgu.CV.VideoCapture();
             IsCapturing = true;
             while (true)
             {
@@ -189,36 +206,48 @@ namespace CarCounter1
 
                     if (nextFrame != null)
                     {
-                        var img = nextFrame.ToBitmap();
-                        if (img != null)
+                        // Resize
+                        Mat resize = new Mat();
+                        CvInvoke.Resize(nextFrame, resize, new Size(1280, 768));
+
+                        if (SelectionArea.Width > 0 && SelectionArea.Height > 0)
                         {
-                            // enable resize
-                            //Mat resize = new Mat();
-                            //CvInvoke.Resize(nextFrame, resize, new Size(480, 480), 0, 0, Inter.Linear);
+                            // cropping sesuai selection area
+                            var ratioX = (double)SelectionArea.X / ImgWidth;
+                            var ratioY = (double)SelectionArea.Y / ImgHeight;
+                            var ratioWidth = (double)SelectionArea.Width / ImgWidth;
+                            var ratioHeight = (double)SelectionArea.Height / ImgHeight;
 
-                            if (SelectionArea.Width > 0 && SelectionArea.Height > 0)
-                            {
-                                //cropping sesuai selection area
-                                var ratioX = (double)SelectionArea.X / ImgWidth;
-                                var ratioY = (double)SelectionArea.Y / ImgHeight;
-                                var ratioWidth = (double)SelectionArea.Width / ImgWidth;
-                                var ratioHeight = (double)SelectionArea.Height / ImgHeight;
-
-                                selectRect = new Rectangle((int)(ratioX * nextFrame.Width), (int)(ratioY * nextFrame.Height), (int)(ratioWidth * nextFrame.Width), (int)(ratioHeight * nextFrame.Height));
-
-                            }
-
-                            var bmp = await yolo.Detect(img, selectRect);
-                            //var bmp = await yolo.Detect(resize.ToBitmap(), selectRect);
-
-                            this.pictureBox1?.Invoke((MethodInvoker)delegate
-                            {
-                                // Running on the UI thread
-                                pictureBox1.Image = bmp;
-                            });
-
+                            selectRect = new Rectangle((int)(ratioX * nextFrame.Width), (int)(ratioY * nextFrame.Height), (int)(ratioWidth * nextFrame.Width), (int)(ratioHeight * nextFrame.Height));
                         }
 
+                        //var bmp = await yolo.Detect(resize.ToBitmap(), selectRect);
+
+                        List<YoloPrediction> results = model.Predict(resize.ToBitmap(), 512, 512);
+
+                        //foreach (var item in results)
+                        //{
+                        //string text = item.Label + " " + item.Confidence;
+                        //CvInvoke.Rectangle(resize, new Rectangle(item.Rectangle.X - 2, item.Rectangle.Y - 33, item.Rectangle.Width + 4, 40), new MCvScalar(255, 0, 0), -1);
+                        //CvInvoke.PutText(resize, text, new Point(item.Rectangle.X, item.Rectangle.Y - 15), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.6, new MCvScalar(255, 255, 255), 2);
+                        //CvInvoke.Rectangle(resize, item.Rectangle, new MCvScalar(255, 0, 0), 3);
+                        //}
+
+                        // draw tracker
+                        tracker.Process(results, selectRect);
+                        var bmp = DrawResults2.Draw(results, resize.ToBitmap(), tracker);
+
+                        this.pictureBox1?.Invoke((MethodInvoker)delegate
+                        {
+                            // Running on the UI thread
+                            pictureBox1.Image = bmp;
+                        });
+
+                        //this.pictureBox1?.Invoke((MethodInvoker)delegate
+                        //{
+                        //    // Running on the UI thread
+                        //    pictureBox1.Image = resize.ToBitmap();
+                        //});
                     }
 
                     if (token.IsCancellationRequested)
@@ -226,6 +255,7 @@ namespace CarCounter1
                         break;
                     }
                 }
+                CvInvoke.WaitKey(DelayTime);
                 //Thread.Sleep(DelayTime);
             }
             IsCapturing = false;
