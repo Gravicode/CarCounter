@@ -9,6 +9,7 @@ using Windows.Media;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using System.Linq;
+using Windows.Graphics.Imaging;
 //using Windows.AI.MachineLearning;
 namespace CarCounter.UWP.Helpers
 {
@@ -66,16 +67,23 @@ namespace CarCounter.UWP.Helpers
         {
             try
             {
+                /*
                 if (helper == null) helper = new ImageHelper();
 
                 // Resize
                 var inputBitmap = input.SoftwareBitmap;
                 var outputBitmap = await helper.ResizeBitmap(inputBitmap, 416, 416);
+                
                 var inputImage = VideoFrame.CreateWithSoftwareBitmap(outputBitmap);
-
+                
+                var newImg = new VideoFrame(BitmapPixelFormat.Bgra8,
+                                                (int)416,
+                                                (int)416,
+                                                BitmapAlphaMode.Premultiplied);
+                await inputImage.CopyToAsync(newImg);
                 // Bind the model input with image
-                ImageFeatureValue imageTensor = ImageFeatureValue.CreateFromVideoFrame(inputImage);
-
+                */
+                ImageFeatureValue imageTensor = ImageFeatureValue.CreateFromVideoFrame(input);
                 binding.Bind("input_1:0", imageTensor);
                 var result = await session.EvaluateAsync(binding, "0");
                 var output = new yolov4Output();

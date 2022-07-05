@@ -128,7 +128,7 @@ namespace CarCounter.UWP.Helpers
                 Prediction.Identity1 = output2.GetAsVectorView().ToArray();
                 Prediction.Identity2 = output3.GetAsVectorView().ToArray();
                 
-                var res = Prediction.GetResults(_classesNames, filter);
+                var res = Prediction.GetResults(_classesNames, _classesNames);
                 tracker.Process(res, selectRect);
                 //var bmp = DrawResults.Draw(results, image, tracker);
                 //return bmp;

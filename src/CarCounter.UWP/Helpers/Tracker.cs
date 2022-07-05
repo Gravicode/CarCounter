@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AI.Skills.Vision.ObjectDetector;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -20,7 +21,8 @@ namespace CarCounter.UWP.Helpers
         public bool HasBeenCounted { get; set; } = false;
 
         public DateTime LastUpdate { get; set; }
-
+        public DateTime Created { get; set; }
+        
         public TrackedObject()
         {
             Col = Color.FromArgb(rnd.Next(255), rnd.Next(255), rnd.Next(255));
@@ -39,6 +41,7 @@ namespace CarCounter.UWP.Helpers
     public class Tracker
     {
         const int DistanceLimit = 100;
+        const double AgeLimit = 30;
         const int TimeLimit = 5; //in seconds
         public List<TrackedObject> TrackedList;
         DataTable table = new DataTable("counter");
@@ -61,6 +64,54 @@ namespace CarCounter.UWP.Helpers
             string FileName = $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/log_{DateTime.Now.ToString("yyyy_MM_dd")}.csv";
             Logger.SaveAsCsv(table, FileName);
         }
+        /*
+        public void Process(IReadOnlyList<ObjectDetectorResult> Targets, Rectangle SelectArea)
+        {
+            HashSet<string> Existing = new HashSet<string>();
+            bool IsAdded = false;
+            foreach (var newItem in Targets)
+            {
+                IsAdded = true;
+                var pos = new PointF((float)(newItem.Rect.X + newItem.Rect.Width / 2), (float)(newItem.Rect.Y + newItem.Rect.Height / 2));
+
+                var selTarget = TrackedList.Where(x => Distance(pos, x.Location) < DistanceLimit && !Existing.Contains(x.Id) && newItem.Kind.ToString() == x.Label).FirstOrDefault();
+                if (selTarget != null)
+                {
+                    //tambah ke existing and update
+                    Existing.Add(selTarget.Id);
+                    selTarget.Update(pos);
+                    IsAdded = false;
+
+                }
+                else
+                {
+                    var newObj = new TrackedObject() { Location = pos, Label = newItem.Kind.ToString(),Created=DateTime.Now };
+                    TrackedList.Add(newObj);
+                    Existing.Add(newObj.Id);
+                }
+
+            }
+            var now = DateTime.Now;
+            var removes = TrackedList.Where(x => TimeGapInSecond(now, x.LastUpdate) > TimeLimit).ToList();
+            foreach (var item in removes)
+            {
+                TrackedList.Remove(item);
+            }
+            //count
+            foreach (var item in TrackedList)
+            {
+                if (SelectArea.Contains(new Point((int)item.Location.X, (int)item.Location.Y)) && !item.HasBeenCounted)
+                {
+                    var newRow = table.NewRow();
+                    newRow["No"] = table.Rows.Count + 1;
+                    newRow["Waktu"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    newRow["Jenis"] = item.Label;
+                    table.Rows.Add(newRow);
+
+                    item.HasBeenCounted = true;
+                }
+            }
+        }*/
 
         public void Process(IReadOnlyList<Result> Targets,Rectangle SelectArea)
         {
@@ -81,7 +132,7 @@ namespace CarCounter.UWP.Helpers
 
                 }else
                 {
-                    var newObj = new TrackedObject() { Location = pos, Label = newItem.Label };
+                    var newObj = new TrackedObject() { Location = pos, Label = newItem.Label,Created=DateTime.Now };
                     TrackedList.Add(newObj);
                     Existing.Add(newObj.Id);
                 }
@@ -107,6 +158,19 @@ namespace CarCounter.UWP.Helpers
                     item.HasBeenCounted = true;
                 }
             }
+            //delete
+            var deleted = TrackedList.Where(x => x.HasBeenCounted).ToList();
+            foreach(var item in deleted)
+            {
+                TrackedList.Remove(item);
+            }
+            //delete aged
+            deleted = TrackedList.Where(x => TimeGapInSecond(x.LastUpdate,x.Created) > AgeLimit ).ToList();
+            foreach (var item in deleted)
+            {
+                TrackedList.Remove(item);
+            }
+
         }
 
         double TimeGapInSecond(DateTime dt1,DateTime dt2)

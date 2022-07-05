@@ -23,8 +23,9 @@
             </StackPanel>
         </AppBar>
         <Grid Grid.Row="1">
-            <CaptureElement x:Name="WebCam" Grid.Row="1" Stretch="Fill" Width="800" Height="600"  VerticalAlignment="Center" HorizontalAlignment="Center" />
-            <Canvas x:Name="OverlayCanvas" VerticalAlignment="Center" Width="800" Height="600" HorizontalAlignment="Center" />
+            <CaptureElement x:Name="WebCam" Grid.Row="1" Stretch="Fill" Width="1024" Height="768"  VerticalAlignment="Center" HorizontalAlignment="Center" />
+            <Canvas x:Name="OverlayCanvas" VerticalAlignment="Center" Width="1024" Height="768" HorizontalAlignment="Center" />
+            <Canvas x:Name="OverlayCanvas2" Canvas.ZIndex="1000" VerticalAlignment="Center" Width="1024" Height="768" HorizontalAlignment="Center" />
         </Grid>
         <Grid Grid.Row="2" Background="{ThemeResource ProgressBarBackgroundThemeBrush}">
             <TextBlock x:Name="textblock_status" Margin="5"/>
