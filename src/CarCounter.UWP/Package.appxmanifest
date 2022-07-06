@@ -48,6 +48,7 @@
     <uap:Capability Name="picturesLibrary"/>
     <Capability Name="privateNetworkClientServer"/>
     <uap:Capability Name="videosLibrary"/>
+    <uap:Capability Name="sharedUserCertificates"/>
     <DeviceCapability Name="webcam"/>
     <DeviceCapability Name="microphone"/>
   </Capabilities>

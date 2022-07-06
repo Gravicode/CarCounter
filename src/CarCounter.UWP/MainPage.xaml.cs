@@ -34,6 +34,7 @@ namespace CarCounter.UWP
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        bool GrabFromHttp = false;
         PointF StartLocation;
         bool IsSelect = false;
         private MediaCapture _media_capture;
@@ -43,13 +44,13 @@ namespace CarCounter.UWP
         private readonly SolidColorBrush _line_brush = new SolidColorBrush(Colors.DarkGreen);
         private readonly double _line_thickness = 2.0;
         ImageHttpHelper Grabber;
-
+        RtspHelper rtsp;
         public MainPage()
         {
             this.InitializeComponent();
             button_go.IsEnabled = false;
             this.Loaded += OnPageLoaded;
-
+            rtsp = new RtspHelper();
 
             WebCam.PointerPressed += (s,e) =>
             {
@@ -92,7 +93,7 @@ namespace CarCounter.UWP
            
 
             //for cctv image grabber through http
-            //this.Grabber = new ImageHttpHelper(AppConstants.Username,AppConstants.Password);
+            this.Grabber = new ImageHttpHelper(AppConstants.Username,AppConstants.Password);
         }
         Rectangle selection;
         System.Drawing.Rectangle selectRect;
@@ -121,10 +122,18 @@ namespace CarCounter.UWP
 
             }
         }
-        private void OnPageLoaded(object sender, RoutedEventArgs e)
+        private async void OnPageLoaded(object sender, RoutedEventArgs e)
         {
             _ = InitModelAsync();
             _ = InitCameraAsync();
+            /*
+            await rtsp.StartStream();
+          
+            rtsp.FrameReceived += (a, ev) => {
+                var bmp = SoftwareBitmap.CreateCopyFromBuffer(ev.BitmapFrame.PixelBuffer, BitmapPixelFormat.Bgra8, ev.BitmapFrame.PixelWidth, ev.BitmapFrame.PixelHeight);
+                frame = VideoFrame.CreateWithSoftwareBitmap(bmp);
+            };
+            */
         }
         private async Task InitCameraAsync()
         {
@@ -210,6 +219,7 @@ namespace CarCounter.UWP
                 }
                 //if (frame != null)
                 {
+                    //frame = await Grabber.GetFrameFromHttp(AppConstants.CctvHttp);
                     frame = new VideoFrame(Windows.Graphics.Imaging.BitmapPixelFormat.Bgra8, (int)ImgWidth, (int)ImgHeight);
                     await _media_capture.GetPreviewFrameAsync(frame);
 

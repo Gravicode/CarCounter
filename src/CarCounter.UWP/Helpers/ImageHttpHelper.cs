@@ -17,16 +17,13 @@ namespace CarCounter.UWP.Helpers
     {
         HttpClient client;
 
-        public ImageHttpHelper()
-        {
-            client = new HttpClient();
-        }
+        
         
         public ImageHttpHelper(string Username, string Password)
         {
             var credentials = new NetworkCredential(Username, Password);
             var handler = new HttpClientHandler { Credentials = credentials };
-
+            
             client = new HttpClient(handler);
         }
 
