@@ -27,6 +27,7 @@
                 <AppBarButton Icon="Save" x:Name="button_save" Label="Save Config" Click="button_save_Click" ToolTipService.ToolTip="save configuration." />
                 <local_controls:DeviceComboBox Margin="10,10,10,10" Height="40" x:Name="DeviceComboBox"/>
                 <CheckBox x:Name="ChkAutoPush" Margin="10,10,10,10" Content="Auto Push Data" IsChecked="True"></CheckBox>
+                <CheckBox x:Name="ChkAutoStart" Margin="10,10,10,10" Content="Auto Start" Unchecked="ChkAutoStart_Unchecked" Checked="ChkAutoStart_Checked"  ></CheckBox>
             </StackPanel>
         </AppBar>
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" >
@@ -56,22 +57,26 @@
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" FontSize="25" Text="Car Counter 1.0" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="TxtStatus" ></TextBlock>
             </Grid>
         </ScrollViewer>
-        <GridView x:Name="Grid1" Grid.Row="2" Height="200">
-            <GridView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+        <ListView x:Name="Grid1" Grid.Row="2" Height="200">
 
-                        <TextBlock Grid.Column="0" Text="{Binding Jenis}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Jumlah}"/>
-                    </Grid>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel 
+                        Orientation="Horizontal" 
+                        Margin="0"
+                        Padding="5,5,5,5"
+                        >
+                        <TextBlock FontSize="20" Margin="5,5,5,5" Text="{Binding Jenis}"  />
+                        <TextBlock FontSize="20" Margin="5,5,5,5" Text=" -> " />
+                        <TextBlock FontSize="20" Margin="5,5,5,5" Text="{Binding Merek}"  />
+                        <TextBlock FontSize="20" Margin="5,5,5,5" Text=" : " />
+                        <TextBlock FontSize="20" Margin="5,5,5,5" Text="{Binding Jumlah}"  />
+                    </StackPanel>
+
                 </DataTemplate>
-            </GridView.ItemTemplate>
-            
-        </GridView>
+            </ListView.ItemTemplate>
+
+        </ListView>
         <Grid Grid.Row="3" Background="{ThemeResource ProgressBarBackgroundThemeBrush}">
             <TextBlock x:Name="textblock_status" Margin="5"/>
         </Grid>

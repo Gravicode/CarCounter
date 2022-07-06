@@ -163,7 +163,7 @@ namespace CarCounter.UWP
                 StatTimer.Start();
 
             }
-
+            ChkAutoStart.IsChecked = AppConstants.AutoStart; 
         }
         private void StatTimerTick(object sender, object e)
         {
@@ -171,7 +171,7 @@ namespace CarCounter.UWP
             {
                 var tracker = _model.GetTracker();
                 var stat = tracker.GetStatTable();
-                Grid1.ItemsSource = ToDynamic(stat);
+                Grid1.ItemsSource = stat;
             }
         }
         public System.Collections.ObjectModel.ObservableCollection<dynamic> ToDynamic(DataTable dt)
@@ -266,6 +266,9 @@ namespace CarCounter.UWP
                     this.Grabber = new ImageHttpHelper(AppConstants.Username, AppConstants.Password);
                     break;
             }
+
+            if (AppConstants.AutoStart)
+                await  StartTracking();
         }
         private async Task InitCameraAsync()
         {
@@ -470,6 +473,11 @@ namespace CarCounter.UWP
 
         private async void button_go_Click(object sender, RoutedEventArgs e)
         {
+            await StartTracking();
+        }
+
+        async Task StartTracking()
+        {
             if (!IsTracking)
             {
                 var deviceIndex = DeviceComboBox.SelectedIndex;
@@ -655,6 +663,18 @@ namespace CarCounter.UWP
                 this.OverlayCanvas.Children.Add(border);
             }
         }
+
+        private void ChkAutoStart_Checked(object sender, RoutedEventArgs e)
+        {
+            AppConstants.AutoStart = true;
+        }
+
+        private void ChkAutoStart_Unchecked(object sender, RoutedEventArgs e)
+        {
+            AppConstants.AutoStart = false;
+
+        }
+
 
         private async Task DrawBoxes4(List<Result> detections, VideoFrame frame)
         {

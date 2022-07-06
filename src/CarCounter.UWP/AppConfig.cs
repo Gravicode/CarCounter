@@ -31,6 +31,8 @@ namespace CarCounter.UWP
                 AppConstants.Username = localSettings.Values["Username"] as string;
                 AppConstants.Password = localSettings.Values["Password"] as string;
                 AppConstants.SelectionArea = localSettings.Values["SelectionArea"] as string;
+                bool.TryParse( localSettings.Values["AutoStart"] as string, out var autostart);
+                AppConstants.AutoStart = autostart;
             }
         }
         public static void Save()
@@ -43,6 +45,7 @@ namespace CarCounter.UWP
             localSettings.Values["Username"] = AppConstants.Username;
             localSettings.Values["Password"] = AppConstants.Password;
             localSettings.Values["SelectionArea"] = AppConstants.SelectionArea;
+            localSettings.Values["AutoStart"] = AppConstants.AutoStart.ToString();
 
         }
     }

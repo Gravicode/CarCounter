@@ -9,7 +9,12 @@ using System.Threading.Tasks;
 
 namespace CarCounter.UWP.Helpers
 {
-    
+    public class StatData
+    {
+        public string Jenis { get; set; }
+        public string Merek { get; set; }
+        public long Jumlah { get; set; }
+    }
     public class TrackedObject
     {
         static Random rnd = new Random(Environment.TickCount);
@@ -54,23 +59,17 @@ namespace CarCounter.UWP.Helpers
             table.AcceptChanges();
         }
 
-        public DataTable GetStatTable()
+        public List<StatData> GetStatTable()
         {
-            DataTable stat = new DataTable("stat");
-            stat.Columns.Add("Jenis");
-            stat.Columns.Add("Jumlah");
-            stat.AcceptChanges();
+            var datas = new List<StatData>();
             var dataJenis = (from product in table.AsEnumerable()
                            select product.Field<string>("Jenis")).Distinct().ToArray();
             foreach(var jenis in dataJenis)
             {
                 var jumlah = table.AsEnumerable().Where(x => x.Field<string>("Jenis") == jenis).Count();
-                var newRow = stat.NewRow();
-                newRow["Jenis"] = jenis;
-                newRow["Jumlah"] = jumlah;
-                stat.Rows.Add(newRow);
+                datas.Add(new StatData() { Jenis = jenis, Jumlah = jumlah });
             }
-            return stat;
+            return datas;
         }
 
         public DataTable GetLogTable()

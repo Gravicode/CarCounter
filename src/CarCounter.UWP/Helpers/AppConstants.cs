@@ -15,6 +15,7 @@ namespace CarCounter.UWP.Helpers
         public static string SelectionArea { get; set; }
         public static string Gateway { get; set; } = "Gateway-001";
         public static string Lokasi { get; set; } = "Botani Square Bogor";
+        public static bool AutoStart { get; set; } = false;
         public static string GrpcUrl { get; set; } = "https://localhost:7091/";
     }
 }
