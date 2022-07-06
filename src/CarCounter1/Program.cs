@@ -20,7 +20,7 @@ namespace CarCounter1
             ApplicationConfiguration.Initialize();
             ReadConfig();
             Setup();
-            Application.Run(new Canvas());
+            Application.Run(new Canvas1());
         }
 
         static void Setup()

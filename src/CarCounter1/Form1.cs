@@ -9,10 +9,11 @@ using DarknetYolo;
 using DarknetYolo.Models;
 using Tracker = CarCounter1.Helpers.Tracker;
 using System;
+using System.Diagnostics;
 
 namespace CarCounter1
 {
-    public partial class Canvas : Form
+    public partial class Canvas1 : MetroFramework.Forms.MetroForm
     {
         int ImgHeight = 0, ImgWidth = 0;
         Point StartLocation;
@@ -29,7 +30,7 @@ namespace CarCounter1
 
         int DelayTime = 1;
 
-        public Canvas()
+        public Canvas1()
         {
             InitializeComponent();
             dataCounterService = ObjectContainer.Get<DataCounterService>();
@@ -191,14 +192,17 @@ namespace CarCounter1
             if (source != null)
                 source.Cancel();
         }
-        
+
+        private static readonly string[] filter = new string[] {
+            "bicycle", "car", "motorbike", "bus", "truck" 
+        };
 
         async void Capture(CancellationToken token)
         {
             Rectangle selectRect = new Rectangle();
             if (IsCapturing) return;
-            //var capture = !string.IsNullOrEmpty(AppConstants.Cctv1) ? new Emgu.CV.VideoCapture(AppConstants.Cctv1) : new Emgu.CV.VideoCapture();
-            var capture = !string.IsNullOrEmpty(SelectedFile) ? new Emgu.CV.VideoCapture(SelectedFile) : new Emgu.CV.VideoCapture();
+            var capture = !string.IsNullOrEmpty(AppConstants.Cctv1) ? new Emgu.CV.VideoCapture(AppConstants.Cctv1) : new Emgu.CV.VideoCapture();
+            //var capture = !string.IsNullOrEmpty(SelectedFile) ? new Emgu.CV.VideoCapture(SelectedFile) : new Emgu.CV.VideoCapture();
             IsCapturing = true;
             while (true)
             {
@@ -224,7 +228,9 @@ namespace CarCounter1
 
                         //var bmp = await yolo.Detect(resize.ToBitmap(), selectRect);
 
-                        List<YoloPrediction> results = model.Predict(resize.ToBitmap(), 512, 512);
+                        var watch = new Stopwatch();
+                        watch.Start();
+                        List<YoloPrediction> results = model.Predict(resize.ToBitmap(), filter, 512, 512);
 
                         //foreach (var item in results)
                         //{
@@ -249,6 +255,13 @@ namespace CarCounter1
                         //    // Running on the UI thread
                         //    pictureBox1.Image = resize.ToBitmap();
                         //});
+
+                        watch.Stop();
+
+                        this.Fps?.Invoke((MethodInvoker)delegate
+                        {
+                            Fps.Text = $"FPS: {(1000f / watch.ElapsedMilliseconds).ToString("00.00")}";
+                        });
                     }
 
                     if (token.IsCancellationRequested)
