@@ -40,7 +40,7 @@ namespace CarCounter.UWP.Helpers
     }
     public class Tracker
     {
-        const int DistanceLimit = 100;
+        const int DistanceLimit = 200;
         const double AgeLimit = 30;
         const int TimeLimit = 5; //in seconds
         public List<TrackedObject> TrackedList;
@@ -54,10 +54,35 @@ namespace CarCounter.UWP.Helpers
             table.AcceptChanges();
         }
 
+        public DataTable GetStatTable()
+        {
+            DataTable stat = new DataTable("stat");
+            stat.Columns.Add("Jenis");
+            stat.Columns.Add("Jumlah");
+            stat.AcceptChanges();
+            var dataJenis = (from product in table.AsEnumerable()
+                           select product.Field<string>("Jenis")).Distinct().ToArray();
+            foreach(var jenis in dataJenis)
+            {
+                var jumlah = table.AsEnumerable().Where(x => x.Field<string>("Jenis") == jenis).Count();
+                var newRow = stat.NewRow();
+                newRow["Jenis"] = jenis;
+                newRow["Jumlah"] = jumlah;
+                stat.Rows.Add(newRow);
+            }
+            return stat;
+        }
+
         public DataTable GetLogTable()
         {
             return table;
         }
+
+        public void ClearLogTable()
+        {
+            table.Rows.Clear();
+        }
+
         public void SaveToLog()
         {
             

@@ -1,24 +1,49 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CarCounter.UWP.Helpers;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.Storage;
 
 namespace CarCounter.UWP
 {
     public class AppConfig
     {
-        private readonly IConfigurationRoot _configurationRoot;
-
         public AppConfig()
         {
-            var builder = new ConfigurationBuilder()
-            .SetBasePath(Package.Current.InstalledLocation.Path)
-            .AddJsonFile("appsettings.json", optional: false);
+           
+        }
+        public static void Load()
+        {
+            ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
 
-            _configurationRoot = builder.Build();
+            if (localSettings != null)
+            {
+                var testVal = localSettings.Values["Cctv1"] as string;
+                if (string.IsNullOrEmpty(testVal)) return;
+                // load a setting that is local to the device
+                AppConstants.Cctv1 = localSettings.Values["Cctv1"] as string;
+                AppConstants.CctvHttp = localSettings.Values["CctvHttp"] as string;
+                AppConstants.Username = localSettings.Values["Username"] as string;
+                AppConstants.Password = localSettings.Values["Password"] as string;
+                AppConstants.SelectionArea = localSettings.Values["SelectionArea"] as string;
+            }
+        }
+        public static void Save()
+        {
+            ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+
+            // Save a setting locally on the device
+            localSettings.Values["Cctv1"] = AppConstants.Cctv1;
+            localSettings.Values["CctvHttp"] = AppConstants.CctvHttp;
+            localSettings.Values["Username"] = AppConstants.Username;
+            localSettings.Values["Password"] = AppConstants.Password;
+            localSettings.Values["SelectionArea"] = AppConstants.SelectionArea;
+
         }
     }
 }

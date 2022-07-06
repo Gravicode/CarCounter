@@ -23,9 +23,7 @@ namespace CarCounter.UWP.Helpers
     {
 
         Tracker tracker;
-      
-
-
+        public int DeviceIndex { get; set; }
         bool initialized_ = false;
         ObjectDetectorDescriptor descriptor;
         ObjectDetectorSkill skill ; // If you don't specify an ISkillExecutionDevice, a default will be automatically selected
@@ -35,9 +33,19 @@ namespace CarCounter.UWP.Helpers
 
         public Model5()
         {
+            this.tracker = new Tracker();
 
         }
 
+        public void SetFilter(params ObjectKind[] objects)
+        {
+            
+            Filter.Clear();
+            foreach(var item in objects)
+            {
+                Filter.Add(item);
+            }
+        }
         public Tracker GetTracker()
         {
             return tracker;
@@ -52,22 +60,21 @@ namespace CarCounter.UWP.Helpers
         /// <returns></returns>
         public async Task InitModelAsync(double ImageWidth, double ImageHeight, int DeviceIndex = 0)
         {
+            this.DeviceIndex = DeviceIndex;
             this.ImageWidth = ImageWidth;
             this.ImageHeight = ImageHeight;
             
-            this.tracker = new Tracker();
             //ISkillExecutionDevice device;
             descriptor = new ObjectDetectorDescriptor();
-            var devices =await descriptor.GetSupportedExecutionDevicesAsync();
-            var first = devices.FirstOrDefault();
-            skill = await descriptor.CreateSkillAsync(first) as ObjectDetectorSkill; // If you don't specify an ISkillExecutionDevice, a default will be automatically selected
+            var devices = (await descriptor.GetSupportedExecutionDevicesAsync()).ToList();
+            var selectedDevice = devices[DeviceIndex];
+            skill = await descriptor.CreateSkillAsync(selectedDevice) as ObjectDetectorSkill; // If you don't specify an ISkillExecutionDevice, a default will be automatically selected
             binding = await skill.CreateSkillBindingAsync() as ObjectDetectorBinding;
-
 
             initialized_ = true;
         }
 
-        HashSet<ObjectKind> Filter = new HashSet<ObjectKind> {  ObjectKind.Motorbike, ObjectKind.Car, ObjectKind.Truck, ObjectKind.Bus };
+        HashSet<ObjectKind> Filter = new HashSet<ObjectKind> {   };
         //
         public async Task<List<ObjectDetectorResult>> EvaluateFrame(VideoFrame frame, Rectangle selectRect)
         {
