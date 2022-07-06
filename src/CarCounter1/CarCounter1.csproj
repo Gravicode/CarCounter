@@ -13,8 +13,6 @@
 		<PackageReference Include="MetroFramework" Version="1.2.0.3" />
 		<PackageReference Include="Microsoft.ML" Version="1.7.1" />
 		<PackageReference Include="Microsoft.ML.ImageAnalytics" Version="1.7.1" />
-		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.11.0" />
-		<PackageReference Include="Microsoft.ML.OnnxRuntime.Gpu" Version="1.11.0" />
 		<PackageReference Include="Microsoft.ML.OnnxTransformer" Version="1.7.1" />
 
 		<PackageReference Include="Grpc.HealthCheck" Version="2.46.3" />
