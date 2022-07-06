@@ -3,6 +3,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:CarCounter.UWP"
+    xmlns:vlc="using:VLC"
+
      xmlns:local_samples="using:CarCounter.UWP.Samples"
     xmlns:local_controls="using:CarCounter.UWP.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -22,10 +24,28 @@
                 <local_controls:DeviceComboBox Margin="10,10,10,10" Height="40" x:Name="DeviceComboBox"/>
             </StackPanel>
         </AppBar>
-        <Grid Grid.Row="1">
-            <CaptureElement x:Name="WebCam" Grid.Row="1" Stretch="Fill" Width="1280" Height="720"  VerticalAlignment="Center" HorizontalAlignment="Center" />
-            <Canvas x:Name="OverlayCanvas" VerticalAlignment="Center" Width="1280" Height="720" HorizontalAlignment="Center" />
-            <Canvas x:Name="OverlayCanvas2" Canvas.ZIndex="1000" VerticalAlignment="Center" Width="1280" Height="720" HorizontalAlignment="Center" />
+        <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <Grid.Resources >
+                <Style TargetType="Border" >
+                    <Setter Property="Padding" Value="10,10,10,10" />
+                </Style>
+            </Grid.Resources>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Grid.Row="0" FontSize="20" Text="Raw Stream" HorizontalAlignment="Center" VerticalAlignment="Center" ></TextBlock>
+            <TextBlock Grid.Column="1" Grid.Row="0" FontSize="20" Text="Tracker" HorizontalAlignment="Center" VerticalAlignment="Center" ></TextBlock>
+            <vlc:MediaElement Grid.Column="0" Grid.Row="1" Stretch="Fill" Width="640" Height="360"  VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="VlcPlayer" HardwareAcceleration="True">
+
+            </vlc:MediaElement>
+            <CaptureElement x:Name="WebCam" Visibility="Collapsed" Grid.Column="1" Grid.Row="2" Stretch="Fill" Width="640" Height="360"  VerticalAlignment="Center" HorizontalAlignment="Center" />
+            <Canvas x:Name="OverlayCanvas" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" Width="640" Height="360" HorizontalAlignment="Center" />
+            <Canvas x:Name="OverlayCanvas2" Canvas.ZIndex="1000" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Width="640" Height="360" HorizontalAlignment="Center" />
         </Grid>
         <Grid Grid.Row="2" Background="{ThemeResource ProgressBarBackgroundThemeBrush}">
             <TextBlock x:Name="textblock_status" Margin="5"/>

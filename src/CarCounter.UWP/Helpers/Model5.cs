@@ -67,7 +67,7 @@ namespace CarCounter.UWP.Helpers
             initialized_ = true;
         }
 
-        HashSet<ObjectKind> Filter = new HashSet<ObjectKind> { ObjectKind.Motorbike, ObjectKind.Car, ObjectKind.Truck, ObjectKind.Bus };
+        HashSet<ObjectKind> Filter = new HashSet<ObjectKind> {  ObjectKind.Motorbike, ObjectKind.Car, ObjectKind.Truck, ObjectKind.Bus };
         //
         public async Task<List<ObjectDetectorResult>> EvaluateFrame(VideoFrame frame, Rectangle selectRect)
         {

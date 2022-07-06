@@ -296,6 +296,7 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		References\EmguCV\Emgu.CV.Runtime\Windows\Emgu.CV.Runtime.Windows.projitems*{030083ae-fd52-4137-9c21-3c4b6e2e126f}*SharedItemsImports = 5
 		References\EmguCV\Emgu.CV.Runtime\Windows\Emgu.CV.Runtime.Windows.projitems*{adc3c8e5-ebcd-4d3c-b3a4-20cfe0e42fc1}*SharedItemsImports = 13
+		References\EmguCV\Emgu.CV.Runtime\Windows\Emgu.CV.Runtime.Windows.projitems*{c80b4184-a328-4828-bcab-87113a9f6518}*SharedItemsImports = 5
 		References\EmguCV\Emgu.CV.Contrib\Emgu.CV.Contrib.projitems*{e38e398c-2745-461c-adf6-7bce469506df}*SharedItemsImports = 5
 		References\EmguCV\Emgu.CV.Cuda\Emgu.CV.Cuda.projitems*{e38e398c-2745-461c-adf6-7bce469506df}*SharedItemsImports = 5
 		References\EmguCV\Emgu.CV.OCR\Emgu.CV.OCR.projitems*{e38e398c-2745-461c-adf6-7bce469506df}*SharedItemsImports = 5

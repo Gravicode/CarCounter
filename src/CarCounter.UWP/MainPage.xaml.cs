@@ -11,11 +11,13 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
+using Windows.Graphics.Display;
 using Windows.Graphics.Imaging;
 using Windows.Media;
 using Windows.Media.Capture;
 using Windows.Media.MediaProperties;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -34,7 +36,7 @@ namespace CarCounter.UWP
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        bool GrabFromHttp = false;
+        //bool GrabFromHttp = false;
         PointF StartLocation;
         bool IsSelect = false;
         private MediaCapture _media_capture;
@@ -43,29 +45,29 @@ namespace CarCounter.UWP
         private readonly SolidColorBrush _fill_brush = new SolidColorBrush(Colors.Transparent);
         private readonly SolidColorBrush _line_brush = new SolidColorBrush(Colors.DarkGreen);
         private readonly double _line_thickness = 2.0;
-        ImageHttpHelper Grabber;
-        RtspHelper rtsp;
+        //ImageHttpHelper Grabber;
+        //RtspHelper rtsp;
         public MainPage()
         {
             this.InitializeComponent();
             button_go.IsEnabled = false;
             this.Loaded += OnPageLoaded;
-            rtsp = new RtspHelper();
+            //rtsp = new RtspHelper();
 
-            WebCam.PointerPressed += (s,e) =>
+            OverlayCanvas.PointerPressed += (s,e) =>
             {
                 //if (e.Pointer.PointerDeviceType == MouseButtons.Left)
                 {
                     IsSelect = true;
-                    var pos = e.GetCurrentPoint(this.WebCam).Position;
+                    var pos = e.GetCurrentPoint(this.OverlayCanvas).Position;
                     StartLocation = new PointF ((float)pos.X,(float)pos.Y);
                 }
             };
-            WebCam.PointerMoved += (s,e) =>
+            OverlayCanvas.PointerMoved += (s,e) =>
             {
                 if (IsSelect)
                 {
-                    var pos = e.GetCurrentPoint(this.WebCam).Position;
+                    var pos = e.GetCurrentPoint(this.OverlayCanvas).Position;
                     SelectionArea.X = (int)Math.Min(StartLocation.X, pos.X);
                     SelectionArea.Y = (int)Math.Min(StartLocation.Y, pos.Y);
                     SelectionArea.Width = (int)Math.Abs(StartLocation.X - pos.X);
@@ -73,7 +75,7 @@ namespace CarCounter.UWP
                     RefreshSelection();
                 }
             };
-            WebCam.PointerReleased += (s,e) =>
+            OverlayCanvas.PointerReleased += (s,e) =>
             {
                 if (IsSelect)
                 {
@@ -93,7 +95,7 @@ namespace CarCounter.UWP
            
 
             //for cctv image grabber through http
-            this.Grabber = new ImageHttpHelper(AppConstants.Username,AppConstants.Password);
+            //this.Grabber = new ImageHttpHelper(AppConstants.Username,AppConstants.Password);
         }
         Rectangle selection;
         System.Drawing.Rectangle selectRect;
@@ -122,10 +124,25 @@ namespace CarCounter.UWP
 
             }
         }
+
+        async Task<VideoFrame> Capture(UIElement element)
+        {
+            // Render to an image at the current system scale and retrieve pixel contents
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap();
+            await renderTargetBitmap.RenderAsync(element);
+            var pixelBuffer = await renderTargetBitmap.GetPixelsAsync();
+            SoftwareBitmap outputBitmap = SoftwareBitmap.CreateCopyFromBuffer(pixelBuffer, BitmapPixelFormat.Bgra8, renderTargetBitmap.PixelWidth, renderTargetBitmap.PixelHeight, BitmapAlphaMode.Ignore);
+            //var currentImage = SoftwareBitmap.Convert(outputBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+            var current = VideoFrame.CreateWithSoftwareBitmap(outputBitmap);
+            return current;
+        }
         private async void OnPageLoaded(object sender, RoutedEventArgs e)
         {
             _ = InitModelAsync();
-            _ = InitCameraAsync();
+            VlcPlayer.Source = AppConstants.Cctv1;
+            VlcPlayer.Play();
+           
+            //_ = InitCameraAsync();
             /*
             await rtsp.StartStream();
           
@@ -219,9 +236,11 @@ namespace CarCounter.UWP
                 }
                 //if (frame != null)
                 {
+                    frame = await Capture(VlcPlayer);
+                  
                     //frame = await Grabber.GetFrameFromHttp(AppConstants.CctvHttp);
-                    frame = new VideoFrame(Windows.Graphics.Imaging.BitmapPixelFormat.Bgra8, (int)ImgWidth, (int)ImgHeight);
-                    await _media_capture.GetPreviewFrameAsync(frame);
+                    //frame = new VideoFrame(Windows.Graphics.Imaging.BitmapPixelFormat.Bgra8, (int)ImgWidth, (int)ImgHeight);
+                    //await _media_capture.GetPreviewFrameAsync(frame);
 
                     var results = await _model.EvaluateFrame(frame, selectRect);
                     
@@ -364,7 +383,9 @@ namespace CarCounter.UWP
             await bitmap_source.SetBitmapAsync(frame.SoftwareBitmap);
 
             brush.ImageSource = bitmap_source;
-
+            brush.Stretch = Stretch.Fill;
+            this.OverlayCanvas.Background = brush;
+            
             for (int i = 0; i < detections.Count; ++i)
             {
                 int top = (int)(detections[i].Rect.Top * ImgHeight);
@@ -475,7 +496,7 @@ namespace CarCounter.UWP
                 //this.textBlock.Text = "Operation cancelled.";
             }
             */
-
+            
             if (_timer == null)
             {
                 // now start processing frames, no need to do more than 30 per second!
@@ -494,10 +515,12 @@ namespace CarCounter.UWP
             textblock_status.Text = text;
         }
 
+        /*
         async Task GrabImageFromHttp()
         {
             this.frame = await this.Grabber.GetFrameFromHttp(AppConstants.CctvHttp);
         }
+        */
         private async void OnTimerTick(object sender, object e)
         {
             //grab from http
