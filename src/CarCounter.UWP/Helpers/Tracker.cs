@@ -45,7 +45,7 @@ namespace CarCounter.UWP.Helpers
     }
     public class Tracker
     {
-        const int DistanceLimit = 200;
+        const int DistanceLimit = 300;
         const double AgeLimit = 30;
         const int TimeLimit = 5; //in seconds
         public List<TrackedObject> TrackedList;

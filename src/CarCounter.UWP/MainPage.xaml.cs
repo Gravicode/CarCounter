@@ -17,6 +17,8 @@ using Windows.Devices.Enumeration;
 using Windows.Graphics.Imaging;
 using Windows.Media;
 using Windows.Media.Capture;
+using Windows.Storage.AccessCache;
+using Windows.Storage.Pickers;
 using Windows.UI;
 using Windows.UI.Input;
 using Windows.UI.Xaml;
@@ -163,7 +165,7 @@ namespace CarCounter.UWP
                 StatTimer.Start();
 
             }
-            ChkAutoStart.IsChecked = AppConstants.AutoStart; 
+            ChkAutoStart.IsChecked = AppConstants.AutoStart;
         }
         private void StatTimerTick(object sender, object e)
         {
@@ -254,6 +256,13 @@ namespace CarCounter.UWP
                     //frame = VideoFrame.CreateWithSoftwareBitmap(bmp);
                     //};
                     VlcPlayer.Source = AppConstants.Cctv1;
+                    //string FILE_TOKEN = "{1BBC4B94-BE33-4D79-A0CB-E5C6CDB9D107}";
+
+                    //var fileOpenPicker = new FileOpenPicker();
+                    //fileOpenPicker.FileTypeFilter.Add("*");
+                    //var file = await fileOpenPicker.PickSingleFileAsync();
+                    //StorageApplicationPermissions.FutureAccessList.AddOrReplace(FILE_TOKEN, file);
+                    //VlcPlayer.Source = $"winrt://{FILE_TOKEN}";
                     VlcPlayer.Play();
                     break;
                 case StreamSourceTypes.WebCam:
@@ -268,7 +277,7 @@ namespace CarCounter.UWP
             }
 
             if (AppConstants.AutoStart)
-                await  StartTracking();
+                await StartTracking();
         }
         private async Task InitCameraAsync()
         {
@@ -357,6 +366,7 @@ namespace CarCounter.UWP
                 switch (Mode)
                 {
                     case StreamSourceTypes.RTSP:
+                        //VlcPlayer.Play();
                         frame = await Capture(VlcPlayer);
                         break;
                     case StreamSourceTypes.WebCam:
@@ -672,9 +682,14 @@ namespace CarCounter.UWP
         private void ChkAutoStart_Unchecked(object sender, RoutedEventArgs e)
         {
             AppConstants.AutoStart = false;
-
         }
 
+        private void button_config_Click(object sender, RoutedEventArgs e)
+        {
+            VlcPlayer.Stop();
+            StatTimer.Stop();
+            this.Frame.Navigate(typeof(ConfigPage), null);
+        }
 
         private async Task DrawBoxes4(List<Result> detections, VideoFrame frame)
         {

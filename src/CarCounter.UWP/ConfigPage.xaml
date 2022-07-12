@@ -1,0 +1,40 @@
+﻿<Page
+    x:Class="CarCounter.UWP.ConfigPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:CarCounter.UWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    FontSize="20*"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="10*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0">
+                <Button Name="btnBack" Content="Back" Click="btnBack_Click"/>
+            </StackPanel>
+            <StackPanel Grid.Row="1">
+                <TextBlock Text="Configuration"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Gateway" Width="300"/>
+                    <TextBox x:Name="InpGateway" Width="900"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Lokasi" Width="300"/>
+                    <TextBox x:Name="InpLokasi" Width="900"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="CCTV Stream" Width="300"/>
+                    <TextBox x:Name="InpCctv1" Width="900"/>
+                </StackPanel>
+                <Button x:Name="btnSaveConfig" Content="Save" Click="btnSaveConfig_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>

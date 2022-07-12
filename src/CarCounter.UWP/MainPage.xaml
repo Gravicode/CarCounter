@@ -28,6 +28,7 @@
                 <local_controls:DeviceComboBox Margin="10,10,10,10" Height="40" x:Name="DeviceComboBox"/>
                 <CheckBox x:Name="ChkAutoPush" Margin="10,10,10,10" Content="Auto Push Data" IsChecked="True"></CheckBox>
                 <CheckBox x:Name="ChkAutoStart" Margin="10,10,10,10" Content="Auto Start" Unchecked="ChkAutoStart_Unchecked" Checked="ChkAutoStart_Checked"  ></CheckBox>
+                <AppBarButton Icon="Setting" x:Name="button_config" Label="Setting" Click="button_config_Click"/>
             </StackPanel>
         </AppBar>
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" >
