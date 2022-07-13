@@ -137,6 +137,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppConfig.cs" />
+    <Compile Include="CctvPage.xaml.cs">
+      <DependentUpon>CctvPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Common\HighResolutionClock.cs" />
     <Compile Include="Common\ImageHelper.cs" />
     <Compile Include="Common\Prediction.cs" />
@@ -214,6 +217,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="CctvPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ConfigPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

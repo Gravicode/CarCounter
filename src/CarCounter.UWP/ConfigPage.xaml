@@ -6,35 +6,72 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    FontSize="20*"
+    FontSize="25"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="10*"/>
-                <RowDefinition Height="1*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0">
-                <Button Name="btnBack" Content="Back" Click="btnBack_Click"/>
-            </StackPanel>
-            <StackPanel Grid.Row="1">
-                <TextBlock Text="Configuration"/>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Gateway" Width="300"/>
-                    <TextBox x:Name="InpGateway" Width="900"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="1" Margin="50 0 50 0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3.5*" />
+                    <ColumnDefinition Width="0.5*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Configuration" FontWeight="Bold" Padding="0 0 0 20"/>
+                    <StackPanel Margin="20 0 0 0">
+                        <Grid Margin="0 10 0 0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="4*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Gateway"/>
+                            <TextBox Grid.Column="1" x:Name="InpGateway"/>
+                        </Grid>
+                        <Grid Margin="0 10 0 0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="4*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Lokasi"/>
+                            <TextBox Grid.Column="1" x:Name="InpLokasi"/>
+                        </Grid>
+                        <Grid Margin="0 10 0 0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="4*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="CCTV Stream"/>
+                            <TextBox Grid.Column="1" x:Name="InpCctv1"/>
+                        </Grid>
+                        <Grid Margin="0 10 0 0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="4*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Grpc Service"/>
+                            <TextBox Grid.Column="1" x:Name="InpGrpc"/>
+                        </Grid>
+                        <Grid Margin="0 40 0 0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="4*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="1" x:Name="btnSaveConfig" Width="150" Background="Transparent"
+                                    VerticalAlignment="Center" Click="btnSaveConfig_Click" HorizontalAlignment="Right">
+                                <StackPanel Orientation="Horizontal">
+                                    <FontIcon Width="30" Height="30" Glyph="&#xe74e;"/>
+                                    <TextBlock Text="Save" FontSize="20" Margin="7 0 0 0 "/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Lokasi" Width="300"/>
-                    <TextBox x:Name="InpLokasi" Width="900"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="CCTV Stream" Width="300"/>
-                    <TextBox x:Name="InpCctv1" Width="900"/>
-                </StackPanel>
-                <Button x:Name="btnSaveConfig" Content="Save" Click="btnSaveConfig_Click"/>
-            </StackPanel>
-        </Grid>
+            </Grid>
+        </StackPanel>
     </Grid>
 </Page>

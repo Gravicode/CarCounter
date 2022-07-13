@@ -1,0 +1,80 @@
+﻿<Page
+    x:Class="CarCounter.UWP.CctvPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:CarCounter.UWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:vlc="using:VLC"
+    xmlns:local_controls="using:CarCounter.UWP.Controls"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <AppBar Grid.Row="0" IsOpen="True" IsSticky="True">
+            <StackPanel Orientation="Horizontal">
+                <AppBarButton Icon="Play" x:Name="button_go" Label="Go" Click="button_go_Click" ToolTipService.ToolTip="Start detecting objects in the video." />
+                <AppBarButton Icon="Save" x:Name="button_save" Label="Save Config" Click="button_save_Click" ToolTipService.ToolTip="save configuration." />
+                <local_controls:DeviceComboBox Margin="10,10,10,10" Height="40" x:Name="DeviceComboBox"/>
+                <CheckBox x:Name="ChkAutoPush" Margin="10,10,10,10" Content="Auto Push Data" IsChecked="True"></CheckBox>
+                <CheckBox x:Name="ChkAutoStart" Margin="10,10,10,10" Content="Auto Start" Unchecked="ChkAutoStart_Unchecked" Checked="ChkAutoStart_Checked"></CheckBox>
+            </StackPanel>
+        </AppBar>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" >
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" >
+                <Grid.Resources >
+                    <Style TargetType="Border" >
+                        <Setter Property="Padding" Value="10,10,10,10" />
+                    </Style>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Grid.Row="0" FontSize="20" Text="Raw Stream" HorizontalAlignment="Center" VerticalAlignment="Center" ></TextBlock>
+                <TextBlock Grid.Column="1" Grid.Row="0" FontSize="20" Text="Tracker" HorizontalAlignment="Center" VerticalAlignment="Center" ></TextBlock>
+                <vlc:MediaElement Grid.Column="0" Grid.Row="1" Stretch="Fill" Width="1200" Height="675"  VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="VlcPlayer" HardwareAcceleration="True"/>
+                <CaptureElement x:Name="WebCam" Grid.Column="0" Grid.Row="1" Stretch="Fill" Width="1200" Height="675"  VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <Canvas x:Name="OverlayCanvas" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" Width="1200" Height="675" HorizontalAlignment="Center" />
+                <Canvas x:Name="OverlayCanvas2" Canvas.ZIndex="1000" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Width="1200" Height="675" HorizontalAlignment="Center" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" FontSize="25" Text="Car Counter 1.0" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="TxtStatus" ></TextBlock>
+            </Grid>
+        </ScrollViewer>
+        <ListView x:Name="Grid1" Grid.Row="2" Height="200">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel 
+                        Orientation="Horizontal" 
+                        Margin="0"
+                        Padding="5,5,5,5"
+                        >
+                        <TextBlock FontSize="20" Margin="5,5,5,5" Text="{Binding Jenis}"  />
+                        <TextBlock FontSize="20" Margin="5,5,5,5" Text=" -> " />
+                        <TextBlock FontSize="20" Margin="5,5,5,5" Text="{Binding Merek}"  />
+                        <TextBlock FontSize="20" Margin="5,5,5,5" Text=" : " />
+                        <TextBlock FontSize="20" Margin="5,5,5,5" Text="{Binding Jumlah}"  />
+                    </StackPanel>
+
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+        </ListView>
+        <Grid Grid.Row="3" Background="{ThemeResource ProgressBarBackgroundThemeBrush}">
+            <TextBlock x:Name="textblock_status" Margin="5"/>
+        </Grid>
+    </Grid>
+</Page>

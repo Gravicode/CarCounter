@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -31,28 +32,33 @@ namespace CarCounter.UWP
 
         void LoadConfig()
         {
+            LoadConfiguration();
+        }
+
+        void LoadConfiguration()
+        {
             AppConfig.Load();
+
             InpGateway.Text = AppConstants.Gateway;
             InpLokasi.Text = AppConstants.Lokasi;
             InpCctv1.Text = AppConstants.Cctv1;
+            InpGrpc.Text = AppConstants.GrpcUrl;
         }
 
-        private void btnSaveConfig_Click(object sender, RoutedEventArgs e)
+        void SaveConfiguration()
         {
             AppConstants.Gateway = InpGateway.Text;
             AppConstants.Lokasi = InpLokasi.Text;
             AppConstants.Cctv1 = InpCctv1.Text;
+            AppConstants.GrpcUrl = InpGrpc.Text;
+
             AppConfig.Save();
         }
 
-        private void btnBack_Click(object sender, RoutedEventArgs e)
+        private async void btnSaveConfig_Click(object sender, RoutedEventArgs e)
         {
-            App.Current.Exit();
-            Frame rootFrame = Window.Current.Content as Frame;
-            if (rootFrame.CanGoBack)
-            {
-                rootFrame.GoBack();
-            }
+            SaveConfiguration();
+            //await CoreApplication.RequestRestartAsync("Restarting apps");
         }
     }
 }

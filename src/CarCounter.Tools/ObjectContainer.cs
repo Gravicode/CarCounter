@@ -10,7 +10,10 @@ namespace CarCounter.Tools
 
         public static void Register<T>(T data)
         {
-            MyContainers.Add(typeof(T), data);
+            if (!MyContainers.ContainsKey(typeof(T)))
+            {
+                MyContainers.Add(typeof(T), data);
+            }
         }
 
         public static T Get<T>()
@@ -18,5 +21,9 @@ namespace CarCounter.Tools
             return (T)MyContainers[typeof(T)];
         }
 
+        public static void Clear()
+        {
+            MyContainers.Clear();
+        }
     }
 }
