@@ -71,7 +71,7 @@ namespace CarCounter.UWP
                 localSettings.Values[LocalSettingName.Password] = "123qweasd!";
                 localSettings.Values[LocalSettingName.SelectionArea] = "";
                 localSettings.Values[LocalSettingName.AutoStart] = "false";
-                localSettings.Values[LocalSettingName.GrpcUrl] = "https://localhost:7091/";
+                localSettings.Values[LocalSettingName.GrpcUrl] = "https://carcounterapi.azurewebsites.net/";
             }
         }
     }

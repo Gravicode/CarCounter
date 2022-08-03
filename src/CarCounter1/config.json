@@ -3,7 +3,7 @@
     "Lokasi": "Botani Square",
     "Gateway": "Gateway-BGR-001",
     //"GrpcUrl": "https://carcounterservice.azurewebsites.net/"
-    "GrpcUrl": "https://localhost:7091/"
+    "GrpcUrl": "https://carcounterapi.azurewebsites.net/"
   },
   "CameraUrls": {
     "CCTV1": "rtsp://admin:123qweasd!@192.168.68.113:554/Streaming/Channels/101"
