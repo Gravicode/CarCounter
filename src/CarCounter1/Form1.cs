@@ -201,8 +201,8 @@ namespace CarCounter1
         {
             Rectangle selectRect = new Rectangle();
             if (IsCapturing) return;
-            var capture = !string.IsNullOrEmpty(AppConstants.Cctv1) ? new Emgu.CV.VideoCapture(AppConstants.Cctv1) : new Emgu.CV.VideoCapture();
-            //var capture = !string.IsNullOrEmpty(SelectedFile) ? new Emgu.CV.VideoCapture(SelectedFile) : new Emgu.CV.VideoCapture();
+            //var capture = !string.IsNullOrEmpty(AppConstants.Cctv1) ? new Emgu.CV.VideoCapture(AppConstants.Cctv1) : new Emgu.CV.VideoCapture();
+            var capture = !string.IsNullOrEmpty(SelectedFile) ? new Emgu.CV.VideoCapture(SelectedFile) : new Emgu.CV.VideoCapture();
             IsCapturing = true;
             while (true)
             {

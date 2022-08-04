@@ -96,6 +96,7 @@ namespace CarCounter.UWP
                 RefreshSelection();
             }
 
+            ChkAutoStart.IsChecked = AppConstants.AutoStart;
         }
         void SetupComponents()
         {
@@ -229,6 +230,7 @@ namespace CarCounter.UWP
 
             }
             AppConstants.SelectionArea = JsonSerializer.Serialize(SelectionArea);
+            AppConfig.Save();
         }
 
         async Task<VideoFrame> Capture(UIElement element)
@@ -243,7 +245,6 @@ namespace CarCounter.UWP
         }
         private async void OnPageLoaded(object sender, RoutedEventArgs e)
         {
-
             await InitModelAsync(DeviceComboBox.SelectedIndex);
             VlcPlayer.Visibility = Visibility.Collapsed;
             WebCam.Visibility = Visibility.Collapsed;
@@ -258,14 +259,14 @@ namespace CarCounter.UWP
                     //var bmp = SoftwareBitmap.CreateCopyFromBuffer(ev.BitmapFrame.PixelBuffer, BitmapPixelFormat.Bgra8, ev.BitmapFrame.PixelWidth, ev.BitmapFrame.PixelHeight);
                     //frame = VideoFrame.CreateWithSoftwareBitmap(bmp);
                     //};
-                    //VlcPlayer.Source = AppConstants.Cctv1;
+                    VlcPlayer.Source = AppConstants.Cctv1;
 
-                    string FILE_TOKEN = "{1BBC4B94-BE33-4D79-A0CB-E5C6CDB9D107}";
-                    var fileOpenPicker = new FileOpenPicker();
-                    fileOpenPicker.FileTypeFilter.Add("*");
-                    var file = await fileOpenPicker.PickSingleFileAsync();
-                    StorageApplicationPermissions.FutureAccessList.AddOrReplace(FILE_TOKEN, file);
-                    VlcPlayer.Source = $"winrt://{FILE_TOKEN}";
+                    //string FILE_TOKEN = "{1BBC4B94-BE33-4D79-A0CB-E5C6CDB9D107}";
+                    //var fileOpenPicker = new FileOpenPicker();
+                    //fileOpenPicker.FileTypeFilter.Add("*");
+                    //var file = await fileOpenPicker.PickSingleFileAsync();
+                    //StorageApplicationPermissions.FutureAccessList.AddOrReplace(FILE_TOKEN, file);
+                    //VlcPlayer.Source = $"winrt://{FILE_TOKEN}";
                     VlcPlayer.Play();
                     break;
                 case StreamSourceTypes.WebCam:
@@ -680,11 +681,13 @@ namespace CarCounter.UWP
         private void ChkAutoStart_Checked(object sender, RoutedEventArgs e)
         {
             AppConstants.AutoStart = true;
+            AppConfig.Save();
         }
 
         private void ChkAutoStart_Unchecked(object sender, RoutedEventArgs e)
         {
             AppConstants.AutoStart = false;
+            AppConfig.Save();
         }
 
         private async Task DrawBoxes4(List<Result> detections, VideoFrame frame)

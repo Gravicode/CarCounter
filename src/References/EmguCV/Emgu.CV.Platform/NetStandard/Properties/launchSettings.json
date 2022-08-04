@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Emgu.CV.Platform.NetStandard": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:64211;http://localhost:64212"
+    }
+  }
+}

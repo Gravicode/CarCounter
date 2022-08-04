@@ -52,7 +52,7 @@ namespace CarCounter.UWP
             localSettings.Values[LocalSettingName.Username] = AppConstants.Username;
             localSettings.Values[LocalSettingName.Password] = AppConstants.Password;
             localSettings.Values[LocalSettingName.SelectionArea] = AppConstants.SelectionArea;
-            localSettings.Values[LocalSettingName.AutoStart] = AppConstants.AutoStart;
+            localSettings.Values[LocalSettingName.AutoStart] = AppConstants.AutoStart.ToString();
             localSettings.Values[LocalSettingName.GrpcUrl] = AppConstants.GrpcUrl;
         }
 

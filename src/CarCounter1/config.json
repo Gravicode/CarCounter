@@ -11,8 +11,8 @@
   "NetworkModel": {
     "Label": "C:\\Jobs\\GRAVICODE\\Pengembangan\\CarCounter\\src\\CarCounter1\\NetworkModel\\coco.names",
     //"Weights": "C:\\Jobs\\GRAVICODE\\Pengembangan\\CarCounter\\src\\CarCounter1\\yolov4.onnx",
-    "Weights": "C:\\Jobs\\GRAVICODE\\Pengembangan\\CarCounter\\src\\CarCounter1\\NetworkModel\\yolov4-tiny.weights",
-    "Cfg": "C:\\Jobs\\GRAVICODE\\Pengembangan\\CarCounter\\src\\CarCounter1\\NetworkModel\\yolov4-tiny.cfg"
+    "Weights": "C:\\Jobs\\GRAVICODE\\Pengembangan\\CarCounter\\src\\CarCounter1\\NetworkModel\\yolov4.weights",
+    "Cfg": "C:\\Jobs\\GRAVICODE\\Pengembangan\\CarCounter\\src\\CarCounter1\\NetworkModel\\yolov4.cfg"
   },
   "AllowedHosts": "*",
   "Logging": {
