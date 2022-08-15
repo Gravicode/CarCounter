@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,6 +16,11 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Serilog;
+using Microsoft.Extensions.Logging;
+using Windows.Storage;
+using CarCounter.UWP.Data;
+using Microsoft.Extensions.Configuration;
 
 namespace CarCounter.UWP
 {
@@ -30,6 +37,29 @@ namespace CarCounter.UWP
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+
+            DI.Pool = ConfigureDI();
+        }
+
+        public IServiceProvider ConfigureDI()
+        {
+            // Create IOC container and add logging feature to it.
+            IServiceCollection services = new ServiceCollection();
+            services.AddLogging();
+
+            // Build provider to access the logging service.
+            IServiceProvider provider = services.BuildServiceProvider();
+
+            // UWP is very restrictive of where you can save files on the disk.
+            // The preferred place to do that is app's local folder.
+            //StorageFolder folder = ApplicationData.Current.LocalFolder;
+            StorageFolder folder = ApplicationData.Current.LocalFolder;
+            string fullPath = $"{folder.Path}\\CarCounterLogs\\logging.log";
+
+            // Tell the logging service to use Serilog.File extension.
+            provider.GetService<ILoggerFactory>().AddFile(fullPath);
+
+            return provider;
         }
 
         /// <summary>

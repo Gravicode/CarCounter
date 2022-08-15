@@ -16,6 +16,7 @@ namespace CarCounter.UWP.Helpers
         public static string Gateway { get; set; }
         public static string Lokasi { get; set; }
         public static bool AutoStart { get; set; }
+        public static int ProcessingTarget { get; set; }
         public static string GrpcUrl { get; set; }
     }
 }

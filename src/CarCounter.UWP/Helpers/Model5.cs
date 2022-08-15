@@ -1,7 +1,10 @@
-﻿using CarCounter.UWP.Samples;
+﻿using CarCounter.UWP.Data;
+using CarCounter.UWP.Samples;
 using Microsoft.AI.MachineLearning;
 using Microsoft.AI.Skills.SkillInterface;
 using Microsoft.AI.Skills.Vision.ObjectDetector;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -21,27 +24,27 @@ namespace CarCounter.UWP.Helpers
 {
     internal class Model5
     {
-
+        ILogger<Model5> _logger;
         Tracker tracker;
         public int DeviceIndex { get; set; }
         bool initialized_ = false;
         ObjectDetectorDescriptor descriptor;
-        ObjectDetectorSkill skill ; // If you don't specify an ISkillExecutionDevice, a default will be automatically selected
-        ObjectDetectorBinding binding ;
+        ObjectDetectorSkill skill; // If you don't specify an ISkillExecutionDevice, a default will be automatically selected
+        ObjectDetectorBinding binding;
         double ImageWidth;
         double ImageHeight;
 
         public Model5()
         {
+            _logger = DI.Pool.GetService<ILoggerFactory>()
+                .CreateLogger<Model5>();
             this.tracker = new Tracker();
-
         }
 
         public void SetFilter(params ObjectKind[] objects)
         {
-            
             Filter.Clear();
-            foreach(var item in objects)
+            foreach (var item in objects)
             {
                 Filter.Add(item);
             }
@@ -50,7 +53,7 @@ namespace CarCounter.UWP.Helpers
         {
             return tracker;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -60,10 +63,11 @@ namespace CarCounter.UWP.Helpers
         /// <returns></returns>
         public async Task InitModelAsync(double ImageWidth, double ImageHeight, int DeviceIndex = 0)
         {
+            _logger.LogInformation("Commencing InitModel");
             this.DeviceIndex = DeviceIndex;
             this.ImageWidth = ImageWidth;
             this.ImageHeight = ImageHeight;
-            
+
             //ISkillExecutionDevice device;
             descriptor = new ObjectDetectorDescriptor();
             var devices = (await descriptor.GetSupportedExecutionDevicesAsync()).ToList();
@@ -72,13 +76,14 @@ namespace CarCounter.UWP.Helpers
             binding = await skill.CreateSkillBindingAsync() as ObjectDetectorBinding;
 
             initialized_ = true;
+            _logger.LogInformation("InitModel succeed");
         }
 
-        HashSet<ObjectKind> Filter = new HashSet<ObjectKind> {   };
+        HashSet<ObjectKind> Filter = new HashSet<ObjectKind> { };
         //
         public async Task<List<ObjectDetectorResult>> EvaluateFrame(VideoFrame frame, Rectangle selectRect)
         {
-
+            _logger.LogInformation("Commencing evaluate frame");
             try
             {
                 // Bind
@@ -95,25 +100,23 @@ namespace CarCounter.UWP.Helpers
                 if (results.Count > 0)
                 {
                     var results2 = new List<Result>();
-                    foreach(var item in results)
+                    foreach (var item in results)
                     {
-                        results2.Add(new Result(new float[] { (float)(item.Rect.X * ImageWidth), (float)(item.Rect.Y * ImageHeight), (float)((item.Rect.X+item.Rect.Width) * ImageWidth), (float)((item.Rect.Y+item.Rect.Height) * ImageHeight) }, item.Kind.ToString(), item.Confidence));
+                        results2.Add(new Result(new float[] { (float)(item.Rect.X * ImageWidth), (float)(item.Rect.Y * ImageHeight), (float)((item.Rect.X + item.Rect.Width) * ImageWidth), (float)((item.Rect.Y + item.Rect.Height) * ImageHeight) }, item.Kind.ToString(), item.Confidence));
                     }
                     tracker.Process(results2, selectRect);
                 }
                 //var bmp = DrawResults.Draw(results, image, tracker);
                 //return bmp;
+                _logger.LogInformation("Evaluate frame succeed");
                 return results.ToList();
                 //RenderImageInMainPanel(softwareBitmap);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                _logger.LogInformation(ex, "Evaluate frame failed");
                 return default;
-
             }
-
-
         }
 
         public DataTable GetLogData()

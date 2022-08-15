@@ -1,9 +1,12 @@
 ﻿using CarCounter.Models;
 using CarCounter.Tools;
+using CarCounter.UWP.Data;
 using CarCounter.UWP.Helpers;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Web;
 using Microsoft.AI.Skills.Vision.ObjectDetector;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,12 +14,15 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net.Http;
+using System.Net.NetworkInformation;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Graphics.Imaging;
 using Windows.Media;
 using Windows.Media.Capture;
+using Windows.Networking.Connectivity;
 using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;
 using Windows.UI;
@@ -26,6 +32,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Shapes;
+using static System.Net.WebRequestMethods;
 using Rectangle = Windows.UI.Xaml.Shapes.Rectangle;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
@@ -37,6 +44,7 @@ namespace CarCounter.UWP
     /// </summary>
     public sealed partial class CctvPage : Page, IDisposable
     {
+        readonly ILogger<CctvPage> _logger;
         public enum StreamSourceTypes { WebCam, RTSP, HttpImage }
         StreamSourceTypes Mode = StreamSourceTypes.RTSP;
 
@@ -66,6 +74,9 @@ namespace CarCounter.UWP
 
         public CctvPage()
         {
+            _logger = DI.Pool.GetService<ILoggerFactory>()
+                .CreateLogger<CctvPage>();
+            _logger.LogInformation("Start CCTV page");
             this.InitializeComponent();
 
             LoadConfig();
@@ -75,6 +86,7 @@ namespace CarCounter.UWP
 
         void SetupGrpc()
         {
+            _logger.LogInformation("Commencing setup grpc service");
             var channel = GrpcChannel.ForAddress(
               AppConstants.GrpcUrl, new GrpcChannelOptions
               {
@@ -82,13 +94,16 @@ namespace CarCounter.UWP
                   MaxSendMessageSize = 8 * 1024 * 1024, // 2 MB                
                   HttpHandler = new GrpcWebHandler(new HttpClientHandler())
               });
+
             ObjectContainer.Register<GrpcChannel>(channel);
             ObjectContainer.Register<DataCounterService>(new DataCounterService(channel));
             ObjectContainer.Register<CCTVService>(new CCTVService(channel));
             ObjectContainer.Register<GatewayService>(new GatewayService(channel));
+            _logger.LogInformation("Setup grpc service succeed");
         }
         void LoadConfig()
         {
+            _logger.LogInformation("Commencing load configuration");
             AppConfig.Load();
             if (!string.IsNullOrEmpty(AppConstants.SelectionArea))
             {
@@ -97,6 +112,7 @@ namespace CarCounter.UWP
             }
 
             ChkAutoStart.IsChecked = AppConstants.AutoStart;
+            _logger.LogInformation("Load configuration succeed");
         }
         void SetupComponents()
         {
@@ -259,6 +275,7 @@ namespace CarCounter.UWP
                     //var bmp = SoftwareBitmap.CreateCopyFromBuffer(ev.BitmapFrame.PixelBuffer, BitmapPixelFormat.Bgra8, ev.BitmapFrame.PixelWidth, ev.BitmapFrame.PixelHeight);
                     //frame = VideoFrame.CreateWithSoftwareBitmap(bmp);
                     //};
+
                     VlcPlayer.Source = AppConstants.Cctv1;
 
                     //string FILE_TOKEN = "{1BBC4B94-BE33-4D79-A0CB-E5C6CDB9D107}";
@@ -267,6 +284,7 @@ namespace CarCounter.UWP
                     //var file = await fileOpenPicker.PickSingleFileAsync();
                     //StorageApplicationPermissions.FutureAccessList.AddOrReplace(FILE_TOKEN, file);
                     //VlcPlayer.Source = $"winrt://{FILE_TOKEN}";
+
                     VlcPlayer.Play();
                     break;
                 case StreamSourceTypes.WebCam:
@@ -346,6 +364,7 @@ namespace CarCounter.UWP
                 // if we can't keep up to 30 fps, then ignore this tick.
                 return;
             }
+            _logger.LogInformation("Commencing process frame");
             try
             {
                 if (watch == null)
@@ -395,10 +414,11 @@ namespace CarCounter.UWP
                         watch.Restart();
                     }
                 }
+                _logger.LogInformation("Process frame succeed");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                _logger.LogInformation(ex, "Process frame failed");
             }
             finally
             {
@@ -594,14 +614,44 @@ namespace CarCounter.UWP
 
         async Task SyncToCloud()
         {
-            try
+            if (!CheckInternetConnection())
             {
-                var tracker = _model.GetTracker();
+                _logger.LogInformation("Internet connection not available, cancel sync data...");
+                return;
+                //_logger.LogInformation("Waiting for internet connection...");
+                //await Task.Delay(5 * 1000);
+            }
+
+            PushTimer.Stop();
+            var tracker = _model.GetTracker();
+            if (tracker != null)
+            {
                 var table = tracker.GetLogTable();
-                if (table != null)
+                await PushBulkData(table);
+                tracker.ClearLogTable();
+            }
+            PushTimer.Start();
+        }
+
+        bool CheckInternetConnection()
+        {
+            var connectionAvailable = NetworkInformation.GetInternetConnectionProfile();
+            return (connectionAvailable != null && connectionAvailable
+                .GetNetworkConnectivityLevel() == NetworkConnectivityLevel.InternetAccess);
+        }
+
+        async Task PushBulkData(DataTable table)
+        {
+            _logger.LogInformation($"Commencing push data to cloud at {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
+
+            if (table != null)
+            {
+                for (var i = 0; i < table.Rows.Count; i++)
                 {
-                    foreach (DataRow dr in table.Rows)
+                    var dr = table.Rows[i];
+                    try
                     {
+                        _logger.LogInformation($"Try push data index {i}");
                         var newItem = new DataCounter();
                         newItem.Jenis = dr["Jenis"].ToString();
                         newItem.Tanggal = Convert.ToDateTime(dr["Waktu"]);
@@ -609,18 +659,20 @@ namespace CarCounter.UWP
                         newItem.Gateway = AppConstants.Gateway;
                         newItem.Lokasi = AppConstants.Lokasi;
                         var res = await dataCounterService.InsertData(newItem);
+                        if (res)
+                            _logger.LogInformation($"Push data index {i} succeed");
+                        else
+                            _logger.LogWarning($"Push data to cloud failed at index {i}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, $"Push data to cloud failed at index {i}");
                     }
                 }
-                tracker.ClearLogTable();
-                Console.WriteLine("Sync succeed");
             }
-            catch (Exception ex)
-            {
-
-                Console.WriteLine($"Sync failed:{ex.ToString()}");
-            }
-
+            _logger.LogInformation($"Done push data to cloud at {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
         }
+
         #region unused functions
 
         // draw bounding boxes on the output frame based on evaluation result

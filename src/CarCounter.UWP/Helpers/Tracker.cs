@@ -1,4 +1,7 @@
-﻿using Microsoft.AI.Skills.Vision.ObjectDetector;
+﻿using CarCounter.UWP.Data;
+using Microsoft.AI.Skills.Vision.ObjectDetector;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -27,13 +30,13 @@ namespace CarCounter.UWP.Helpers
 
         public DateTime LastUpdate { get; set; }
         public DateTime Created { get; set; }
-        
+
         public TrackedObject()
         {
             Col = Color.FromArgb(rnd.Next(255), rnd.Next(255), rnd.Next(255));
             Id = Guid.NewGuid().ToString();
             Trails = new List<PointF>();
-            LastUpdate= DateTime.Now;   
+            LastUpdate = DateTime.Now;
         }
 
         public void Update(PointF location)
@@ -45,6 +48,7 @@ namespace CarCounter.UWP.Helpers
     }
     public class Tracker
     {
+        readonly ILogger<Tracker> _logger;
         const int DistanceLimit = 200;
         const double AgeLimit = 30;
         const int TimeLimit = 5; //in seconds
@@ -52,6 +56,8 @@ namespace CarCounter.UWP.Helpers
         DataTable table = new DataTable("counter");
         public Tracker()
         {
+            _logger = DI.Pool.GetService<ILoggerFactory>()
+                .CreateLogger<Tracker>();
             TrackedList = new List<TrackedObject>();
             table.Columns.Add("No");
             table.Columns.Add("Waktu");
@@ -63,8 +69,8 @@ namespace CarCounter.UWP.Helpers
         {
             var datas = new List<StatData>();
             var dataJenis = (from product in table.AsEnumerable()
-                           select product.Field<string>("Jenis")).Distinct().ToArray();
-            foreach(var jenis in dataJenis)
+                             select product.Field<string>("Jenis")).Distinct().ToArray();
+            foreach (var jenis in dataJenis)
             {
                 var jumlah = table.AsEnumerable().Where(x => x.Field<string>("Jenis") == jenis).Count();
                 datas.Add(new StatData() { Jenis = jenis, Jumlah = jumlah });
@@ -74,7 +80,16 @@ namespace CarCounter.UWP.Helpers
 
         public DataTable GetLogTable()
         {
-            return table;
+            try
+            {
+                _logger.LogInformation("Try to return log table");
+                return table;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "failed");
+                return null;
+            }
         }
 
         public void ClearLogTable()
@@ -84,7 +99,7 @@ namespace CarCounter.UWP.Helpers
 
         public void SaveToLog()
         {
-            
+
             string FileName = $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/log_{DateTime.Now.ToString("yyyy_MM_dd")}.csv";
             Logger.SaveAsCsv(table, FileName);
         }
@@ -137,16 +152,16 @@ namespace CarCounter.UWP.Helpers
             }
         }*/
 
-        public void Process(IReadOnlyList<Result> Targets,Rectangle SelectArea)
+        public void Process(IReadOnlyList<Result> Targets, Rectangle SelectArea)
         {
             HashSet<string> Existing = new HashSet<string>();
             bool IsAdded = false;
             foreach (var newItem in Targets)
             {
                 IsAdded = true;
-                var pos = new PointF(newItem.BoundingBox[0] + Math.Abs((newItem.BoundingBox[0]- newItem.BoundingBox[2])/2), newItem.BoundingBox[1] + Math.Abs((newItem.BoundingBox[3] - newItem.BoundingBox[1]) / 2));
-               
-                var selTarget = TrackedList.Where(x=> Distance(pos, x.Location)<DistanceLimit && !Existing.Contains(x.Id) && newItem.Label == x.Label).FirstOrDefault();
+                var pos = new PointF(newItem.BoundingBox[0] + Math.Abs((newItem.BoundingBox[0] - newItem.BoundingBox[2]) / 2), newItem.BoundingBox[1] + Math.Abs((newItem.BoundingBox[3] - newItem.BoundingBox[1]) / 2));
+
+                var selTarget = TrackedList.Where(x => Distance(pos, x.Location) < DistanceLimit && !Existing.Contains(x.Id) && newItem.Label == x.Label).FirstOrDefault();
                 if (selTarget != null)
                 {
                     //tambah ke existing and update
@@ -154,42 +169,43 @@ namespace CarCounter.UWP.Helpers
                     selTarget.Update(pos);
                     IsAdded = false;
 
-                }else
+                }
+                else
                 {
-                    var newObj = new TrackedObject() { Location = pos, Label = newItem.Label,Created=DateTime.Now };
+                    var newObj = new TrackedObject() { Location = pos, Label = newItem.Label, Created = DateTime.Now };
                     TrackedList.Add(newObj);
                     Existing.Add(newObj.Id);
                 }
-                
+
             }
             var now = DateTime.Now;
-            var removes = TrackedList.Where(x=>TimeGapInSecond(now,x.LastUpdate)>TimeLimit).ToList();
-            foreach(var item in removes)
+            var removes = TrackedList.Where(x => TimeGapInSecond(now, x.LastUpdate) > TimeLimit).ToList();
+            foreach (var item in removes)
             {
                 TrackedList.Remove(item);
             }
             //count
-            foreach(var item in TrackedList)
+            foreach (var item in TrackedList)
             {
-                if(SelectArea.Contains(new Point((int) item.Location.X, (int)item.Location.Y)) && !item.HasBeenCounted)
+                if (SelectArea.Contains(new Point((int)item.Location.X, (int)item.Location.Y)) && !item.HasBeenCounted)
                 {
                     var newRow = table.NewRow();
                     newRow["No"] = table.Rows.Count + 1;
                     newRow["Waktu"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                     newRow["Jenis"] = item.Label;
                     table.Rows.Add(newRow);
-                    
+
                     item.HasBeenCounted = true;
                 }
             }
             //delete
             var deleted = TrackedList.Where(x => x.HasBeenCounted).ToList();
-            foreach(var item in deleted)
+            foreach (var item in deleted)
             {
                 TrackedList.Remove(item);
             }
             //delete aged
-            deleted = TrackedList.Where(x => TimeGapInSecond(x.LastUpdate,x.Created) > AgeLimit ).ToList();
+            deleted = TrackedList.Where(x => TimeGapInSecond(x.LastUpdate, x.Created) > AgeLimit).ToList();
             foreach (var item in deleted)
             {
                 TrackedList.Remove(item);
@@ -197,7 +213,7 @@ namespace CarCounter.UWP.Helpers
 
         }
 
-        double TimeGapInSecond(DateTime dt1,DateTime dt2)
+        double TimeGapInSecond(DateTime dt1, DateTime dt2)
         {
             var ts = dt1 - dt2;
             return ts.TotalSeconds;

@@ -9,7 +9,7 @@
   <Identity
     Name="70f9ffc9-2782-4c18-8c9f-2025d254a6e5"
     Publisher="CN=Gravicode"
-    Version="1.2.3.0" />
+    Version="1.0.7.0" />
 
   <mp:PhoneIdentity PhoneProductId="70f9ffc9-2782-4c18-8c9f-2025d254a6e5" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -48,6 +48,7 @@
   <Capabilities>
     <Capability Name="internetClient" />
     <uap:Capability Name="picturesLibrary"/>
+    <uap:Capability Name="documentsLibrary"/>
     <Capability Name="privateNetworkClientServer"/>
     <uap:Capability Name="videosLibrary"/>
     <uap:Capability Name="sharedUserCertificates"/>

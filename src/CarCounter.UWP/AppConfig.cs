@@ -36,7 +36,9 @@ namespace CarCounter.UWP
                 AppConstants.Password = localSettings.Values[LocalSettingName.Password] as string;
                 AppConstants.SelectionArea = localSettings.Values[LocalSettingName.SelectionArea] as string;
                 bool.TryParse(localSettings.Values[LocalSettingName.AutoStart] as string, out var autostart);
-                AppConstants.AutoStart = autostart;
+                AppConstants.AutoStart = autostart;                
+                int.TryParse(localSettings.Values[LocalSettingName.ProcessingTarget] as string, out var processingTarget);
+                AppConstants.ProcessingTarget = processingTarget;
             }
         }
 
@@ -53,6 +55,7 @@ namespace CarCounter.UWP
             localSettings.Values[LocalSettingName.Password] = AppConstants.Password;
             localSettings.Values[LocalSettingName.SelectionArea] = AppConstants.SelectionArea;
             localSettings.Values[LocalSettingName.AutoStart] = AppConstants.AutoStart.ToString();
+            localSettings.Values[LocalSettingName.ProcessingTarget] = AppConstants.ProcessingTarget.ToString();
             localSettings.Values[LocalSettingName.GrpcUrl] = AppConstants.GrpcUrl;
         }
 
@@ -71,6 +74,7 @@ namespace CarCounter.UWP
                 localSettings.Values[LocalSettingName.Password] = "123qweasd!";
                 localSettings.Values[LocalSettingName.SelectionArea] = "";
                 localSettings.Values[LocalSettingName.AutoStart] = "false";
+                localSettings.Values[LocalSettingName.ProcessingTarget] = "0";
                 localSettings.Values[LocalSettingName.GrpcUrl] = "https://carcounterapi.azurewebsites.net/";
             }
         }
@@ -81,6 +85,7 @@ namespace CarCounter.UWP
         public static readonly string Gateway = "Gateway";
         public static readonly string Lokasi = "Lokasi";
         public static readonly string AutoStart = "AutoStart";
+        public static readonly string ProcessingTarget = "ProcessingTarget";
         public static readonly string GrpcUrl = "GrpcUrl";
         public static readonly string SelectionArea = "SelectionArea";
         public static readonly string Cctv1 = "Cctv1";
