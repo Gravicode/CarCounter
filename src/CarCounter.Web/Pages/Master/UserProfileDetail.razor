@@ -147,7 +147,7 @@
              var bytes = ImageHelper.FixedSize(ms, 300, 300, false);
             string newName = $"foto_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
             await AzureBlobHelper.UploadFile(newName, bytes);
-            FileUrl = $"https://storagemurahaje.blob.core.windows.net/portal-ub/{newName}";
+            FileUrl = $"https://storagemurahaje.blob.core.windows.net/car-counter/{newName}";
         }
     }
 

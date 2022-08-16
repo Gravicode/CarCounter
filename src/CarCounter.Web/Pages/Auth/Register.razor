@@ -141,9 +141,9 @@ else
         DataUser.Password = enc.Encrypt(DataUser.Password);
         if (svc.InsertData(DataUser))
         {
-            var msg = "Anda telah terdaftar di portal UB, semoga aman, lancar dan barokah. Ajkhr";
+            var msg = "Anda telah terdaftar di Car Counter, terima kasih";
             await SmsService.SendSms(msg, DataUser.Phone);
-            await MailService.PostmarkSendEmail("Telah Teregister di portal UB",msg,DataUser.Email);
+            await MailService.PostmarkSendEmail("Telah Teregister di Car Counter",msg,DataUser.Email);
             RegisterSuccess = true;
             StateHasChanged();
         }

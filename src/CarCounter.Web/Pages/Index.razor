@@ -2,12 +2,80 @@
 @inject IJSRuntime JS
 
 <h5 class="mt-1 mb-2">Car Counter</h5>
+<h4>Assalamualaikum wr wb, selamat datang di Car Counter App. Silakan akses menu dibawah:</h4>
+<div class="row">
+    <div class="col-lg-4">
+        <!-- Basic Card Example -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Data Gateway</h6>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Mengatur data master Gateway</h5>
 
+                <p class="card-text">Untuk mengatur data gateway.</p>
+                <a style="color:black;" href="/master/gateway" class="card-link">Buka</a>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Data CCTV</h6>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Mengatur data master CCTV</h5>
+
+                <p class="card-text">Untuk mengatur data CCTV yang terpasang.</p>
+                <a style="color:black;" href="/master/cctv" class="card-link">Buka</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Data Counter Kendaraan</h6>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Melihat data counter kendaraan</h5>
+
+                <p class="card-text">Untuk melihat data counter kendaraan per waktu.</p>
+                <a style="color:black;" href="/master/datacounter" class="card-link">Buka</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Dashboard Statistik Kendaraan</h6>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Laporan statistik kendaraan</h5>
+
+                <p class="card-text">Untuk melihat laporan statistik kendaraan.</p>
+                <a style="color:black;" href="/report/LaporanStatistik" class="card-link">Buka</a>
+            </div>
+        </div>
+
+
+    </div>
+
+
+</div>
 
 @code {
-   
+
     protected override async Task OnInitializedAsync()
     {
     }
-   
+
 }

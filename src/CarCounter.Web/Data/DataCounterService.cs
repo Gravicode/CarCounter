@@ -35,7 +35,7 @@ namespace CarCounter.Web.Data
 
         public List<DataCounter> GetAllData()
         {
-            return db.DataCounters.ToList();
+            return db.DataCounters.OrderByDescending(x=>x.Id).Take(1000).ToList();
         }
 
         public DataCounter GetDataById(object Id)
