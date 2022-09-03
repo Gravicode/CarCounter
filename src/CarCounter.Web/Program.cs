@@ -10,6 +10,7 @@ using CarCounter.Web.Helpers;
 using Microsoft.AspNetCore.HttpOverrides;
 using PdfSharp.Charting;
 using System.Net;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 
 var builder = WebApplication.CreateBuilder(args);
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -105,6 +106,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 
     //app.UseHttpsRedirection();
+    StaticWebAssetsLoader.UseStaticWebAssets(
+              app.Environment,
+              app.Configuration);
 
 }
 
