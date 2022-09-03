@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using CarCounter.Services.Extension;
 using CarCounter.Services.Controllers;
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -126,9 +128,19 @@ void ConfigureServices(IServiceCollection services, IConfiguration Configuration
                .AllowAnyHeader()
                .WithExposedHeaders("Grpc-Status", "Grpc-Message", "Grpc-Encoding", "Grpc-Accept-Encoding");
     }));
+    services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.KnownProxies.Add(IPAddress.Parse("103.189.234.36"));
+    });
+
 }
 void Configure(WebApplication app, IWebHostEnvironment env)
 {
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    });
+
     //if use GRPC Native
     // app.UseCors(x => x
     //.AllowAnyMethod()
@@ -141,8 +153,11 @@ void Configure(WebApplication app, IWebHostEnvironment env)
     app.UseSwagger();
     app.UseSwaggerUI();
     //}
+    if (!env.IsDevelopment())
+    {
+        app.UseHttpsRedirection();
+    }
 
-    app.UseHttpsRedirection();
     app.UseStaticFiles();
 
     // grpc web

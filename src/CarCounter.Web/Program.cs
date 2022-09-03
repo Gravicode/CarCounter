@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Components.Web;
 using CarCounter.Web.Data;
 using System.Text;
 using CarCounter.Web.Helpers;
+using Microsoft.AspNetCore.HttpOverrides;
+using PdfSharp.Charting;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -74,6 +77,12 @@ SmsService.UserKey = Configuration["SmsSettings:ZenzivaUserKey"];
 SmsService.PassKey = Configuration["SmsSettings:ZenzivaPassKey"];
 SmsService.TokenKey = Configuration["SmsSettings:TokenKey"];
 
+//103.189.234.36
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.KnownProxies.Add(IPAddress.Parse("103.189.234.36"));
+});
 
 
 builder.Services.AddSignalR(hubOptions =>
@@ -83,6 +92,10 @@ builder.Services.AddSignalR(hubOptions =>
 
 
 var app = builder.Build();
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -90,9 +103,11 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+
+    app.UseHttpsRedirection();
+
 }
 
-app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
