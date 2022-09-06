@@ -155,7 +155,7 @@ void Configure(WebApplication app, IWebHostEnvironment env)
     //}
     if (!env.IsDevelopment())
     {
-        app.UseHttpsRedirection();
+        //app.UseHttpsRedirection();
     }
 
     app.UseStaticFiles();
