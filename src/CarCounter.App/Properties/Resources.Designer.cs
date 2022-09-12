@@ -63,16 +63,30 @@ namespace CarCounter.App.Properties {
         /// <summary>
         ///   Looks up a localized string similar to {
         ///  &quot;ConnectionStrings&quot;: {
+        ///    &quot;SqlConn&quot;: &quot;Database=carcounterdb; Data Source=10.122.123.4; User Id=wadmin; Password=I2JAsRq5u4N3&quot;,
+        ///    //&quot;SqlConn&quot;: &quot;Database=carcounterdb; Data Source=103.187.146.194; User Id=wadmin; Password=I2JAsRq5u4N3&quot;,
         ///    //&quot;SqlConn&quot;: &quot;Database=simada_backup; Data Source=localhost; User Id=root; Password=123qweasd&quot;,
-        ///    &quot;SqlConn&quot;: &quot;Database=carcounterdb; Data Source=silpodb.mysql.database.azure.com; User Id=BalittanahAdmin@silpodb; Password=Balit123qweasd!&quot;,
-        ///    &quot;BlobConn&quot;: &quot;DefaultEndpointsProtocol=https;AccountName=storagemurahaje;AccountKey=NU2f/5suzFgLyGYplR6ydXQ+6L8STLCRviDqJf+MS8bVWsO3L5VWFK3qaUltdPNwdd092st0eJWQIBvLI0WI1A==;EndpointSuffix=core.windows.net&quot;
-        ///  },
-        ///  &quot;Logging&quot;: {
-        ///     [rest of string was truncated]&quot;;.
+        ///    //&quot;SqlConn&quot;: &quot;Database=carcounterdb; Data Source=silpodb.mysql.database.azure.com; User Id=BalittanahAdmin@silpodb; Password=Balit123qweasd!&quot;,
+        ///    &quot;BlobConn&quot;: &quot; [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string appsettings {
             get {
                 return ResourceManager.GetString("appsettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;ConnectionStrings&quot;: {
+        ///    &quot;SqlConn&quot;: &quot;Database=carcounterdb; Data Source=10.122.123.4; User Id=wadmin; Password=I2JAsRq5u4N3&quot;,
+        ///    //&quot;SqlConn&quot;: &quot;Database=carcounterdb; Data Source=103.187.146.194; User Id=wadmin; Password=I2JAsRq5u4N3&quot;,
+        ///    //&quot;SqlConn&quot;: &quot;Database=simada_backup; Data Source=localhost; User Id=root; Password=123qweasd&quot;,
+        ///    //&quot;SqlConn&quot;: &quot;Database=carcounterdb; Data Source=silpodb.mysql.database.azure.com; User Id=BalittanahAdmin@silpodb; Password=Balit123qweasd!&quot;,
+        ///    &quot;BlobConn&quot;: &quot; [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string appsettings_Development {
+            get {
+                return ResourceManager.GetString("appsettings.Development", resourceCulture);
             }
         }
     }

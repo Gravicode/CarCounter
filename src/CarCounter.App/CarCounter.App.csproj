@@ -51,6 +51,7 @@
 
 	<ItemGroup>
 	  <Content Remove="Pages\Index.razor" />
+	  <Content Remove="Resources\appsettings.Development.json" />
 	  <Content Remove="Resources\appsettings.json" />
 	  <Content Remove="Shared\NavMenu.razor" />
 	  <Content Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
@@ -1968,6 +1969,7 @@
 
 	<ItemGroup>
 	  <None Include="Pages\Index.razor" />
+	  <None Include="Resources\appsettings.Development.json" />
 	  <None Include="Resources\appsettings.json" />
 	  <None Include="Shared\NavMenu.razor" />
 	  <None Include="wwwroot\css\bootstrap\bootstrap.min.css.map" />
