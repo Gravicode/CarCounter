@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using PdfSharp.Charting;
 using System.Net;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using ServiceStack.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -56,8 +57,9 @@ var configBuilder = new ConfigurationBuilder()
 IConfiguration Configuration = configBuilder.Build();
 
 AppConstants.SQLConn = Configuration["ConnectionStrings:SqlConn"];
-AppConstants.RedisCon = Configuration["RedisCon"];
+AppConstants.RedisCon = Configuration["ConnectionStrings:RedisCon"];
 AppConstants.BlobConn = Configuration["ConnectionStrings:BlobConn"];
+
 AppConstants.GMapApiKey = Configuration["GmapKey"];
 
 AppConstants.LaporanStatistikUrl = Configuration["Reports:LaporanStatistikUrl"];
@@ -79,7 +81,7 @@ SmsService.PassKey = Configuration["SmsSettings:ZenzivaPassKey"];
 SmsService.TokenKey = Configuration["SmsSettings:TokenKey"];
 
 //103.189.234.36
-
+builder.Services.AddSingleton(new RedisManagerPool(AppConstants.RedisCon));
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.KnownProxies.Add(IPAddress.Parse("103.189.234.36"));

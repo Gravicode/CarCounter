@@ -23,6 +23,9 @@
     <None Include="wwwroot\css\open-iconic\README.md" />
   </ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="ServiceStack.Redis.Core" Version="6.4.0" />
+		<PackageReference Include="SkiaSharp" Version="2.88.3" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
 		<PackageReference Include="ChartJs.Blazor.Fork" Version="2.0.2" />
 		<PackageReference Include="Blazored.Typeahead" Version="4.4.0" />
 		<PackageReference Include="ChartJs.Blazor.Fork" Version="2.0.2" />

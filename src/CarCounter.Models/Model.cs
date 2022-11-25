@@ -11,6 +11,14 @@ using System.Threading.Tasks;
 
 namespace CarCounter.Models
 {
+    #region helpers
+    public class CCTVImage
+    {
+        public string CctvName { get; set; }
+        public byte[] ImageBytes { get; set; }
+        public DateTime CreatedDate { get; set; }
+    }
+    #endregion
     #region auth
     [DataContract]
     public class AuthenticationModel
