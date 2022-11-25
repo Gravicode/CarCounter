@@ -7,6 +7,7 @@ using Grpc.Net.Client.Web;
 using Microsoft.AI.Skills.Vision.ObjectDetector;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+//using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,9 +23,11 @@ using Windows.Devices.Enumeration;
 using Windows.Graphics.Imaging;
 using Windows.Media;
 using Windows.Media.Capture;
+using Windows.Media.Protection.PlayReady;
 using Windows.Networking.Connectivity;
 using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Input;
 using Windows.UI.Xaml;
@@ -47,7 +50,7 @@ namespace CarCounter.UWP
         readonly ILogger<CctvPage> _logger;
         public enum StreamSourceTypes { WebCam, RTSP, HttpImage }
         StreamSourceTypes Mode = StreamSourceTypes.RTSP;
-
+        HttpClient client = new HttpClient();
         PointF StartLocation;
         bool IsSelect = false;
         private MediaCapture _media_capture;
@@ -413,6 +416,11 @@ namespace CarCounter.UWP
                         count = 0;
                         watch.Restart();
                     }
+                    if ((bool)ChkPushImageToCloud.IsChecked)
+                    {
+                        var data = await EncodedBytes(frame.SoftwareBitmap, BitmapEncoder.JpegEncoderId);
+                        await PushImageToCloud($"cctv-1", data);
+                    }
                 }
                 _logger.LogInformation("Process frame succeed");
             }
@@ -639,7 +647,29 @@ namespace CarCounter.UWP
             return (connectionAvailable != null && connectionAvailable
                 .GetNetworkConnectivityLevel() == NetworkConnectivityLevel.InternetAccess);
         }
+        private async Task<byte[]> EncodedBytes(SoftwareBitmap soft, Guid encoderId)
+        {
+            byte[] array = null;
 
+            // First: Use an encoder to copy from SoftwareBitmap to an in-mem stream (FlushAsync)
+            // Next:  Use ReadAsync on the in-mem stream to get byte[] array
+
+            using (var ms = new InMemoryRandomAccessStream())
+            {
+                BitmapEncoder encoder = await BitmapEncoder.CreateAsync(encoderId, ms);
+                encoder.SetSoftwareBitmap(soft);
+
+                try
+                {
+                    await encoder.FlushAsync();
+                }
+                catch (Exception ex) { return new byte[0]; }
+
+                array = new byte[ms.Size];
+                await ms.ReadAsync(array.AsBuffer(), (uint)ms.Size, InputStreamOptions.None);
+            }
+            return array;
+        }
         async Task PushBulkData(DataTable table)
         {
             _logger.LogInformation($"Commencing push data to cloud at {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
@@ -672,7 +702,30 @@ namespace CarCounter.UWP
             }
             _logger.LogInformation($"Done push data to cloud at {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
         }
-
+        const string PushImageApiUrl = "https://carcounter.my.id/api/cctv/sendimage";
+        async Task<bool> PushImageToCloud(string CctvName, byte[] ImageData)
+        {
+            try
+            {
+                var info = new CCTVImage() { CctvName = CctvName, ImageBytes = ImageData, CreatedDate = DateTime.Now };
+                var json = System.Text.Json.JsonSerializer.Serialize(info);
+                var hasil = await client.PostAsync(PushImageApiUrl, new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+                if (hasil.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"{DateTime.Now} => push image dari {CctvName} sukses");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine($"{DateTime.Now} => push image dari {CctvName} gagal, {await hasil.Content.ReadAsStringAsync()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return false;
+        }
         #region unused functions
 
         // draw bounding boxes on the output frame based on evaluation result
