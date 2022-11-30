@@ -72,19 +72,19 @@ namespace CarCounter.Models
     {
 
     }
-    
+
     [ServiceContract]
     public interface IUserProfile : ICrudGrpc<UserProfile>
     {
         [OperationContract]
-        Task<UserProfile> GetItemByEmail(InputCls input, CallContext context = default); 
-        
+        Task<UserProfile> GetItemByEmail(InputCls input, CallContext context = default);
+
         [OperationContract]
         Task<UserProfile> GetItemByPhone(InputCls input, CallContext context = default);
-        
+
         [OperationContract]
-        Task<OutputCls> IsUserExists(InputCls input, CallContext context = default); 
-        
+        Task<OutputCls> IsUserExists(InputCls input, CallContext context = default);
+
         [OperationContract]
         Task<OutputCls> GetUserRole(InputCls input, CallContext context = default);
     }
@@ -153,7 +153,7 @@ namespace CarCounter.Models
         public DateTime? TanggalPasang { get; set; }
         [DataMember(Order = 4)]
         public string? Lokasi { get; set; }
-      
+
         [DataMember(Order = 5)]
         public string? Keterangan { get; set; }
     }
@@ -189,11 +189,13 @@ namespace CarCounter.Models
         [DataMember(Order = 3)]
         public string? Jenis { get; set; }
         [DataMember(Order = 4)]
-        public string? Lokasi { get; set; } 
+        public string? Lokasi { get; set; }
         [DataMember(Order = 5)]
         public string? Gateway { get; set; }
         [DataMember(Order = 6)]
         public string? Merek { get; set; }
+        [NotMapped]
+        public int Index { get; set; }
     }
     [DataContract]
     public class UserProfile
@@ -220,7 +222,7 @@ namespace CarCounter.Models
         public string? PicUrl { get; set; }
         [DataMember(Order = 10)]
         public bool Aktif { get; set; } = true;
-       
+
         [DataMember(Order = 11)]
         public Roles Role { set; get; } = Roles.User;
 

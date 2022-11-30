@@ -8,7 +8,8 @@
     mc:Ignorable="d"
     xmlns:vlc="using:VLC"
     xmlns:local_controls="using:CarCounter.UWP.Controls"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    NavigationCacheMode="Disabled">
 
     <Grid>
         <SplitView x:Name="mainSplitView" DisplayMode="CompactInline" IsPaneOpen="False"

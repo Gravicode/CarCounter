@@ -36,12 +36,11 @@ namespace CarCounter.UWP
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class MainPage : Page
-    {        
+    {
         public MainPage()
         {
             this.InitializeComponent();
-
-            frameMainContent.Navigate(typeof(CctvPage));
+            frameMainContent.Navigate(typeof(CctvPage), this);
         }            
 
         private void btnShowPane_Click(object sender, RoutedEventArgs e)
@@ -61,12 +60,12 @@ namespace CarCounter.UWP
 
         private void btnCctv_Click(object sender, RoutedEventArgs e)
         {
-            frameMainContent.Navigate(typeof(CctvPage));
+            frameMainContent.Navigate(typeof(CctvPage), this);
         }
 
         private void btnSetting_Click(object sender, RoutedEventArgs e)
         {
-            frameMainContent.Navigate(typeof(ConfigPage));
-        }
+            frameMainContent.Navigate(typeof(ConfigPage), this);
+        }   
     }
 }

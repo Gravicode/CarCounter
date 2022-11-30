@@ -18,6 +18,7 @@ using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Graphics.Imaging;
@@ -34,6 +35,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 using static System.Net.WebRequestMethods;
 using Rectangle = Windows.UI.Xaml.Shapes.Rectangle;
@@ -220,7 +222,7 @@ namespace CarCounter.UWP
         private async void PushTimerTick(object sender, object e)
         {
             if (ChkAutoPush.IsChecked.Value)
-                await SyncToCloud();
+                SyncToCloud();
         }
 
         void RefreshSelection()
@@ -279,14 +281,14 @@ namespace CarCounter.UWP
                     //frame = VideoFrame.CreateWithSoftwareBitmap(bmp);
                     //};
 
-                    VlcPlayer.Source = AppConstants.Cctv1;
+                    //VlcPlayer.Source = AppConstants.Cctv1;
 
-                    //string FILE_TOKEN = "{1BBC4B94-BE33-4D79-A0CB-E5C6CDB9D107}";
-                    //var fileOpenPicker = new FileOpenPicker();
-                    //fileOpenPicker.FileTypeFilter.Add("*");
-                    //var file = await fileOpenPicker.PickSingleFileAsync();
-                    //StorageApplicationPermissions.FutureAccessList.AddOrReplace(FILE_TOKEN, file);
-                    //VlcPlayer.Source = $"winrt://{FILE_TOKEN}";
+                    string FILE_TOKEN = "{1BBC4B94-BE33-4D79-A0CB-E5C6CDB9D107}";
+                    var fileOpenPicker = new FileOpenPicker();
+                    fileOpenPicker.FileTypeFilter.Add("*");
+                    var file = await fileOpenPicker.PickSingleFileAsync();
+                    StorageApplicationPermissions.FutureAccessList.AddOrReplace(FILE_TOKEN, file);
+                    VlcPlayer.Source = $"winrt://{FILE_TOKEN}";
 
                     VlcPlayer.Play();
                     break;
@@ -304,6 +306,7 @@ namespace CarCounter.UWP
             if (AppConstants.AutoStart)
                 await StartTracking();
         }
+
         private async Task InitCameraAsync()
         {
             if (_media_capture == null || _media_capture.CameraStreamState == Windows.Media.Devices.CameraStreamState.Shutdown || _media_capture.CameraStreamState == Windows.Media.Devices.CameraStreamState.NotStreaming)
@@ -367,7 +370,7 @@ namespace CarCounter.UWP
                 // if we can't keep up to 30 fps, then ignore this tick.
                 return;
             }
-            _logger.LogInformation("Commencing process frame");
+            //_logger.LogInformation("Commencing process frame");
             try
             {
                 if (watch == null)
@@ -634,9 +637,15 @@ namespace CarCounter.UWP
             var tracker = _model.GetTracker();
             if (tracker != null)
             {
-                var table = tracker.GetLogTable();
-                await PushBulkData(table);
-                tracker.ClearLogTable();
+                try
+                {
+                    var table = tracker.GetLogTable();
+                    tracker.ClearLogTable();
+                    await PushBulkData(table);
+                }
+                catch (Exception ex)
+                {
+                }
             }
             PushTimer.Start();
         }
@@ -672,35 +681,57 @@ namespace CarCounter.UWP
         }
         async Task PushBulkData(DataTable table)
         {
+            dataSyncCandidate = new Queue<DataCounter>();
             _logger.LogInformation($"Commencing push data to cloud at {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
-
             if (table != null)
             {
                 for (var i = 0; i < table.Rows.Count; i++)
                 {
                     var dr = table.Rows[i];
-                    try
+                    var newItem = new DataCounter();
+                    newItem.Jenis = dr["Jenis"].ToString();
+                    newItem.Tanggal = Convert.ToDateTime(dr["Waktu"]);
+                    newItem.Merek = "-";
+                    newItem.Gateway = AppConstants.Gateway;
+                    newItem.Lokasi = AppConstants.Lokasi;
+                    newItem.Index = i;
+                    dataSyncCandidate.Enqueue(newItem);
+                }
+
+                while (dataSyncCandidate.TryDequeue(out var item))
+                {
+                    _logger.LogInformation($"Data index {item.Index} waiting for semaphore");
+                    await semaphoreSlim.WaitAsync();
+                    Task.Run(async () =>
                     {
-                        _logger.LogInformation($"Try push data index {i}");
-                        var newItem = new DataCounter();
-                        newItem.Jenis = dr["Jenis"].ToString();
-                        newItem.Tanggal = Convert.ToDateTime(dr["Waktu"]);
-                        newItem.Merek = "-";
-                        newItem.Gateway = AppConstants.Gateway;
-                        newItem.Lokasi = AppConstants.Lokasi;
-                        var res = await dataCounterService.InsertData(newItem);
-                        if (res)
-                            _logger.LogInformation($"Push data index {i} succeed");
-                        else
-                            _logger.LogWarning($"Push data to cloud failed at index {i}");
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, $"Push data to cloud failed at index {i}");
-                    }
+                        int idx = item.Index;
+                        await SendingDataToCloud(item, idx);
+                        semaphoreSlim.Release();
+                    });
                 }
             }
             _logger.LogInformation($"Done push data to cloud at {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}");
+        }
+
+        private Queue<DataCounter> dataSyncCandidate = new Queue<DataCounter>();
+        private SemaphoreSlim semaphoreSlim = new SemaphoreSlim(7);
+
+        async Task SendingDataToCloud(DataCounter data, int index)
+        {
+            try
+            {
+                _logger.LogInformation($"Try push index {index} with data {data.Tanggal} - {data.Jenis}");
+                var res = await dataCounterService.InsertData(data);
+                //var res = true;
+                if (res)
+                    _logger.LogInformation($"Push data index {index} succeed");
+                else
+                    _logger.LogWarning($"Push data to cloud failed at index {index}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Push data to cloud failed at index {index}");
+            }
         }
         const string PushImageApiUrl = "https://carcounter.my.id/api/cctv/sendimage";
         async Task<bool> PushImageToCloud(string CctvName, byte[] ImageData)
@@ -850,18 +881,34 @@ namespace CarCounter.UWP
         }
         #endregion
 
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            Dispose();
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+        }
+
         public void Dispose()
         {
-            _media_capture?.Dispose();
-            _timer.Stop();
-            PushTimer.Stop();
-            StatTimer.Stop();
-            frame?.Dispose();
-            if (watch.IsRunning)
+            if (_media_capture != null)
+                _media_capture.Dispose();
+            if (_timer != null)
+                _timer.Stop();
+            if (PushTimer != null)
+                PushTimer.Stop();
+            if (StatTimer != null)
+                StatTimer.Stop();
+            if (frame != null)
+                frame?.Dispose();
+
+            if (watch != null && watch.IsRunning)
             {
                 watch.Stop();
             }
-            VlcPlayer.Stop();
+            if (VlcPlayer != null)
+                VlcPlayer.Stop();
         }
     }
 }

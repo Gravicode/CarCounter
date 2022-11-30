@@ -83,7 +83,7 @@ namespace CarCounter.UWP.Helpers
         //
         public async Task<List<ObjectDetectorResult>> EvaluateFrame(VideoFrame frame, Rectangle selectRect)
         {
-            _logger.LogInformation("Commencing evaluate frame");
+            //_logger.LogInformation("Commencing evaluate frame");
             try
             {
                 // Bind
@@ -108,7 +108,7 @@ namespace CarCounter.UWP.Helpers
                 }
                 //var bmp = DrawResults.Draw(results, image, tracker);
                 //return bmp;
-                _logger.LogInformation("Evaluate frame succeed");
+                //_logger.LogInformation("Evaluate frame succeed");
                 return results.ToList();
                 //RenderImageInMainPanel(softwareBitmap);
             }

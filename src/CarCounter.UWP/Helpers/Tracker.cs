@@ -83,7 +83,7 @@ namespace CarCounter.UWP.Helpers
             try
             {
                 _logger.LogInformation("Try to return log table");
-                return table;
+                return table.Copy();
             }
             catch (Exception ex)
             {
